@@ -119,26 +119,39 @@ export function Hero() {
                     {/* Vintage Flashlight Reveal Container */}
                     <div
                         ref={logoRef}
-                        className="w-[50vw] max-w-2xl mx-auto relative"
+                        className="w-[70vw] md:w-[50vw] max-w-2xl mx-auto relative transition-all duration-500"
                         style={{
-                            // Mask reveals the logo only at mouse position
+                            // Mask reveals the logo only at mouse position on desktop
+                            // On mobile/tablet, we use a very large circle or disable mask to show it fully
                             maskImage: `radial-gradient(circle 250px at ${mousePos.x}px ${mousePos.y}px, black 30%, transparent 100%)`,
-                            WebkitMaskImage: `radial-gradient(circle 250px at ${mousePos.x}px ${mousePos.y}px, black 30%, transparent 100%)`
+                            WebkitMaskImage: `radial-gradient(circle 250px at ${mousePos.x}px ${mousePos.y}px, black 30%, transparent 100%)`,
+                            // Basic CSS fallback: if no mouse pos or small screen, we might want to override this
                         }}
                     >
-                        {/* Ghost/Guide Logo (Very faint usage hint) */}
-                        <img
-                            src={LogoWhite}
-                            alt=""
-                            className="absolute top-0 left-0 w-full h-auto object-contain opacity-[0.05]"
-                        />
+                        {/* Mobile Override: Show fully if screen is small or touch is detected via CSS */}
+                        <style>{`
+                            @media (max-width: 1024px), (pointer: coarse) {
+                                .flashlight-mask {
+                                    mask-image: none !important;
+                                    -webkit-mask-image: none !important;
+                                }
+                            }
+                        `}</style>
+                        <div className="flashlight-mask w-full h-full relative">
+                            {/* Ghost/Guide Logo (Very faint usage hint) */}
+                            <img
+                                src={LogoWhite}
+                                alt=""
+                                className="absolute top-0 left-0 w-full h-auto object-contain opacity-[0.05]"
+                            />
 
-                        {/* Revealed Logo */}
-                        <img
-                            src={LogoWhite} // Always white on dark immersive background
-                            alt="VERO"
-                            className="w-full h-auto object-contain drop-shadow-xl"
-                        />
+                            {/* Revealed Logo */}
+                            <img
+                                src={LogoWhite} // Always white on dark immersive background
+                                alt="VERO"
+                                className="w-full h-auto object-contain drop-shadow-xl"
+                            />
+                        </div>
                     </div>
                 </motion.div>
             </div>
@@ -148,7 +161,7 @@ export function Hero() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5, duration: 1 }}
-                className="absolute bottom-12 left-0 right-0 px-8 flex flex-col md:flex-row justify-between items-end md:items-center gap-8 z-30"
+                className="absolute bottom-8 md:bottom-12 left-0 right-0 px-6 md:px-8 flex flex-col md:flex-row justify-between items-center md:items-center gap-6 md:gap-8 z-30"
             >
                 <div className="hidden md:block w-32">
                     <span className="text-xs text-white/60 uppercase tracking-widest">Scroll</span>

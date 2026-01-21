@@ -291,14 +291,14 @@ const Index = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8 }}
-                className="heading-display text-6xl md:text-[9rem] lg:text-[11rem] leading-[0.85] text-white tracking-tighter mix-blend-difference relative z-10"
+                className="heading-display text-5xl sm:text-7xl md:text-[9rem] lg:text-[11rem] leading-[0.85] text-white tracking-tighter mix-blend-difference relative z-10"
               >
                 ESSENTIALS
               </motion.h2>
 
               {/* Text Glitch Overlay - Red */}
               <motion.h2
-                className="heading-display text-6xl md:text-[9rem] lg:text-[11rem] leading-[0.85] text-[#ff003c] tracking-tighter absolute top-0 left-0 -z-10 opacity-70 mix-blend-screen select-none"
+                className="heading-display text-5xl sm:text-7xl md:text-[9rem] lg:text-[11rem] leading-[0.85] text-[#ff003c] tracking-tighter absolute top-0 left-0 -z-10 opacity-70 mix-blend-screen select-none"
                 animate={{
                   x: [-2, 4, -1, 3, 0],
                   clipPath: [
@@ -322,7 +322,7 @@ const Index = () => {
 
               {/* Text Glitch Overlay - Cyan */}
               <motion.h2
-                className="heading-display text-6xl md:text-[9rem] lg:text-[11rem] leading-[0.85] text-[#00f3ff] tracking-tighter absolute top-0 left-0 -z-10 opacity-70 mix-blend-screen select-none"
+                className="heading-display text-5xl sm:text-7xl md:text-[9rem] lg:text-[11rem] leading-[0.85] text-[#00f3ff] tracking-tighter absolute top-0 left-0 -z-10 opacity-70 mix-blend-screen select-none"
                 animate={{
                   x: [2, -3, 1, -3, 0],
                   clipPath: [
@@ -385,7 +385,7 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 h-[120vh] md:h-[800px]">
+          <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 h-auto md:h-[800px]">
             {/* Item 1: Oversized Hoodies (Big Square 2x2) */}
             <GlitchCard
               className="md:col-span-2 md:row-span-2"

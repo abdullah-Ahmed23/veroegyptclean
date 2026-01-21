@@ -61,15 +61,17 @@ export function GlitchCard({ image, title, subtitle, link, className, tag }: Gli
             onMouseMove={handleMouseMove}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={handleMouseLeave}
-            style={{
-                transformStyle: "preserve-3d",
-                rotateX,
-                rotateY,
-            }}
             className={cn(
                 "group relative overflow-hidden rounded-sm cursor-pointer perspective-1000 bg-black",
+                "transition-transform duration-500",
                 className
             )}
+            style={{
+                transformStyle: "preserve-3d",
+                // Only apply tilt if it's a fine pointer (desktop)
+                rotateX: window.matchMedia('(pointer: fine)').matches ? rotateX : 0,
+                rotateY: window.matchMedia('(pointer: fine)').matches ? rotateY : 0,
+            }}
         >
             <Link to={link} className="block w-full h-full relative transform-style-3d">
 

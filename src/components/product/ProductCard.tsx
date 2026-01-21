@@ -90,8 +90,8 @@ export function ProductCard({ product, index }: ProductCardProps) {
           )}
         </div>
 
-        {/* Quick Add Button - Floating/Glitchy */}
-        <div className="absolute bottom-4 right-4 z-20 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+        {/* Quick Add Button - Always visible on mobile */}
+        <div className="absolute bottom-4 right-4 z-20 md:translate-y-4 md:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
           <button
             onClick={handleAddToCart}
             className="bg-white/90 backdrop-blur text-black p-3 hover:bg-black hover:text-white transition-colors shadow-lg group/btn overflow-hidden relative"
@@ -123,7 +123,9 @@ export function ProductCard({ product, index }: ProductCardProps) {
                 className={cn(
                   "w-6 h-6 rounded-full border border-border cursor-pointer transition-all duration-300 relative",
                   "hover:scale-110 hover:border-black dark:hover:border-white",
-                  "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                  // Disable hover effects on touch devices
+                  "@media (pointer: coarse) { hover:scale-100 hover:border-border }"
                 )}
                 style={{ backgroundColor: variant?.colorHex }}
                 title={color}
