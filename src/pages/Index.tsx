@@ -92,7 +92,7 @@ const Index = () => {
       </section>
 
       {/* New Arrivals -> FRESH DROPS */}
-      <section className="section-padding bg-background relative overflow-hidden min-h-[80vh] flex flex-col justify-center">
+      <section id="fresh-drops" className="section-padding bg-background relative overflow-hidden min-h-[80vh] flex flex-col justify-center">
         {/* Background decorative element - Ticker */}
         <div className="absolute top-0 left-0 w-full overflow-hidden opacity-[0.03] select-none pointer-events-none">
           <motion.div
@@ -108,71 +108,87 @@ const Index = () => {
 
         <div className="w-full px-4 md:px-10 relative z-10">
           <div className="flex flex-col mb-16 gap-8">
-            {/* Header Layout: Left, Center, Right */}
-            <div className="relative flex flex-col md:flex-row items-end justify-between border-b border-foreground/10 pb-6 gap-6">
+            {/* Header Layout: Centered Symmetrical */}
+            <div className="relative flex flex-col items-center justify-center border-b border-foreground/10 pb-12 gap-8 text-center">
 
-              {/* Max Left: Title */}
-              <div className="flex-1">
-                <motion.h2
-                  initial={{ opacity: 0, x: -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  className="heading-display text-5xl md:text-7xl lg:text-8xl text-foreground leading-none"
-                >
-                  FRESH DROPS
-                </motion.h2>
-              </div>
+              {/* Available Now - Top */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="flex items-center gap-2"
+              >
+                <span className="w-2 h-2 bg-[#4ade80] rounded-full animate-pulse shadow-[0_0_10px_#4ade80]" />
+                <p className="text-xs font-bold uppercase tracking-[0.3em] text-foreground/60">
+                  Available Now
+                </p>
+              </motion.div>
 
-              {/* Center: Available Now - Absolute centering for MD+ */}
-              <div className="md:absolute md:left-1/2 md:-translate-x-1/2 md:bottom-8 w-full md:w-auto flex justify-start md:justify-center">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  className="flex items-center gap-2"
-                >
-                  <span className="w-2 h-2 bg-[#4ade80] rounded-full animate-pulse shadow-[0_0_10px_#4ade80]" />
-                  <p className="text-xs font-bold uppercase tracking-[0.3em] text-foreground/60">
-                    Available Now
-                  </p>
-                </motion.div>
-              </div>
+              {/* Title - Center */}
+              <motion.h2
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                className="heading-display text-6xl md:text-8xl lg:text-9xl text-foreground leading-none tracking-tighter"
+              >
+                FRESH DROPS
+              </motion.h2>
 
-              {/* Max Right: View All */}
-              <div className="flex-1 flex justify-end">
-                <motion.div
-                  initial={{ opacity: 0, x: 50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.2 }}
+              {/* View All - Bottom */}
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+              >
+                <Link
+                  to="/collections/new-arrivals"
+                  className="group inline-flex items-center gap-4 text-sm font-bold uppercase tracking-widest bg-foreground text-background px-10 py-4 hover:bg-foreground/90 transition-all hover:scale-105 shadow-xl"
                 >
-                  <Link
-                    to="/collections/new-arrivals"
-                    className="group flex items-center gap-4 text-sm font-bold uppercase tracking-widest bg-foreground text-background px-8 py-4 hover:bg-foreground/90 transition-all hover:-translate-y-1 shadow-lg"
-                  >
-                    View All
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </motion.div>
-              </div>
+                  View All
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </motion.div>
             </div>
           </div>
 
-          {/* Grid - 3 Columns for Bigger Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-12 gap-x-6 lg:gap-12">
+          {/* Horizontal Scroll Showcase */}
+          <motion.div
+            initial={{ opacity: 0, x: 100 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-12 -mx-4 md:-mx-10 px-4 md:px-10"
+          >
             {newArrivals.map((product, index) => (
               <motion.div
                 key={product.id}
-                initial={{ opacity: 0, y: 100 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                className="flex-none w-[85vw] md:w-[450px] snap-center"
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1, ease: "backOut" }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <ProductCard product={product} index={index} />
               </motion.div>
             ))}
-          </div>
+
+            {/* View More Card at the end */}
+            <motion.div
+              className="flex-none w-[85vw] md:w-[300px] snap-center flex items-center justify-center bg-foreground/5"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
+              <Link to="/collections/new-arrivals" className="group flex flex-col items-center gap-4 text-center p-8">
+                <span className="w-16 h-16 rounded-full border border-foreground/20 flex items-center justify-center group-hover:bg-foreground group-hover:text-background transition-all duration-300">
+                  <ArrowRight className="w-6 h-6" />
+                </span>
+                <span className="text-xl font-bold uppercase tracking-widest">View All<br />Drops</span>
+              </Link>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 

@@ -119,25 +119,24 @@ export function Hero() {
                     {/* Vintage Flashlight Reveal Container */}
                     <div
                         ref={logoRef}
-                        className="w-[70vw] md:w-[50vw] max-w-2xl mx-auto relative transition-all duration-500"
+                        className="flashlight-container w-[70vw] md:w-[50vw] max-w-2xl mx-auto relative transition-all duration-500"
                         style={{
                             // Mask reveals the logo only at mouse position on desktop
                             // On mobile/tablet, we use a very large circle or disable mask to show it fully
                             maskImage: `radial-gradient(circle 250px at ${mousePos.x}px ${mousePos.y}px, black 30%, transparent 100%)`,
                             WebkitMaskImage: `radial-gradient(circle 250px at ${mousePos.x}px ${mousePos.y}px, black 30%, transparent 100%)`,
-                            // Basic CSS fallback: if no mouse pos or small screen, we might want to override this
                         }}
                     >
                         {/* Mobile Override: Show fully if screen is small or touch is detected via CSS */}
                         <style>{`
                             @media (max-width: 1024px), (pointer: coarse) {
-                                .flashlight-mask {
+                                .flashlight-container {
                                     mask-image: none !important;
                                     -webkit-mask-image: none !important;
                                 }
                             }
                         `}</style>
-                        <div className="flashlight-mask w-full h-full relative">
+                        <div className="w-full h-full relative">
                             {/* Ghost/Guide Logo (Very faint usage hint) */}
                             <img
                                 src={LogoWhite}
@@ -145,11 +144,48 @@ export function Hero() {
                                 className="absolute top-0 left-0 w-full h-auto object-contain opacity-[0.05]"
                             />
 
+                            {/* Mobile Glitch Effect (Red & Purple) */}
+                            <motion.img
+                                src={LogoWhite}
+                                alt=""
+                                className="absolute inset-0 w-full h-full object-contain -z-10 md:hidden mix-blend-screen"
+                                style={{ filter: 'drop-shadow(3px 0px 0px rgba(255, 0, 0, 0.8))' }} // Red
+                                initial={{ opacity: 0 }}
+                                animate={{
+                                    x: [-3, 3, -1, 0],
+                                    opacity: [0, 0.8, 0.8, 0]
+                                }}
+                                transition={{
+                                    repeat: Infinity,
+                                    repeatDelay: 2,
+                                    duration: 0.2,
+                                    ease: "easeInOut"
+                                }}
+                            />
+                            <motion.img
+                                src={LogoWhite}
+                                alt=""
+                                className="absolute inset-0 w-full h-full object-contain -z-10 md:hidden mix-blend-screen"
+                                style={{ filter: 'drop-shadow(-3px 0px 0px rgba(138, 43, 226, 0.8))' }} // Purple/Violet
+                                initial={{ opacity: 0 }}
+                                animate={{
+                                    x: [3, -3, 1, 0],
+                                    opacity: [0, 0.8, 0.8, 0]
+                                }}
+                                transition={{
+                                    repeat: Infinity,
+                                    repeatDelay: 2,
+                                    duration: 0.25,
+                                    delay: 0.05, // Slight sync offset
+                                    ease: "easeInOut"
+                                }}
+                            />
+
                             {/* Revealed Logo */}
                             <img
                                 src={LogoWhite} // Always white on dark immersive background
                                 alt="VERO"
-                                className="w-full h-auto object-contain drop-shadow-xl"
+                                className="w-full h-auto object-contain drop-shadow-xl relative z-10"
                             />
                         </div>
                     </div>
@@ -163,9 +199,8 @@ export function Hero() {
                 transition={{ delay: 0.5, duration: 1 }}
                 className="absolute bottom-8 md:bottom-12 left-0 right-0 px-6 md:px-8 flex flex-col md:flex-row justify-between items-center md:items-center gap-6 md:gap-8 z-30"
             >
-                <div className="hidden md:block w-32">
-                    <span className="text-xs text-white/60 uppercase tracking-widest">Scroll</span>
-                </div>
+                {/* Spacer/Balance */}
+                <div className="hidden md:block w-32" />
 
                 <div className="flex flex-col items-center gap-6">
                     <p className="text-white/90 max-w-xs text-center text-sm leading-relaxed hidden md:block drop-shadow-md">
@@ -182,9 +217,18 @@ export function Hero() {
                     </Link>
                 </div>
 
+                {/* Modern Scroll Indicator */}
                 <div className="w-32 flex justify-end">
-                    <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center animate-spin-slow backdrop-blur-sm">
-                        <ArrowDown className="w-4 h-4 text-white" />
+                    <div
+                        className="group/scroll flex flex-col items-center gap-2 cursor-pointer"
+                        onClick={() => document.getElementById('fresh-drops')?.scrollIntoView({ behavior: 'smooth' })}
+                    >
+                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70 group-hover/scroll:text-white transition-colors">
+                            Scroll
+                        </span>
+                        <div className="w-12 h-12 rounded-full border border-white/30 flex items-center justify-center backdrop-blur-md group-hover/scroll:bg-white group-hover/scroll:border-white transition-all duration-300">
+                            <ArrowDown className="w-5 h-5 text-white group-hover/scroll:text-black group-hover/scroll:translate-y-1 transition-all duration-300 animate-bounce-slight" />
+                        </div>
                     </div>
                 </div>
             </motion.div>

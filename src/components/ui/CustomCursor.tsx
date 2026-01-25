@@ -1,99 +1,115 @@
 import { useEffect, useState } from 'react';
-import { motion, useSpring, useMotionValue, AnimatePresence } from 'framer-motion';
+import { motion, useMotionValue, Variants } from 'framer-motion';
 
 export function CustomCursor() {
-    const [isVisible, setIsVisible] = useState(false);
-    const [isPointer, setIsPointer] = useState(false);
-    const [isClicking, setIsClicking] = useState(false);
+    const [cursorVariant, setCursorVariant] = useState<'default' | 'hover' | 'click'>('default');
 
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
 
-    // Smooth physics for the cursor movement
-    const springConfig = { damping: 25, stiffness: 400 };
-    const cursorX = useSpring(mouseX, springConfig);
-    const cursorY = useSpring(mouseY, springConfig);
-
     useEffect(() => {
-        // Hide default cursor globally
-        document.body.style.cursor = 'none';
+        // Default cursor is hidden via index.css for desktop only
 
-        // Track mouse
         const moveCursor = (e: MouseEvent) => {
             mouseX.set(e.clientX);
             mouseY.set(e.clientY);
-            setIsVisible(true);
+        };
 
-            // Check for interactive elements
+        const handleMouseDown = () => setCursorVariant('click');
+
+        // On mouse up, check if we are still hovering an interactive element to decide next state
+        const handleMouseUp = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
             const isInteractive =
                 target.tagName === 'BUTTON' ||
                 target.tagName === 'A' ||
                 target.closest('button') ||
                 target.closest('a') ||
-                target.classList.contains('cursor-pointer');
+                target.closest('[role="button"]') ||
+                target.classList.contains('cursor-hover') ||
+                target.tagName === 'INPUT' ||
+                target.tagName === 'TEXTAREA';
 
-            setIsPointer(!!isInteractive);
+            setCursorVariant(isInteractive ? 'hover' : 'default');
         };
 
-        const handleMouseDown = () => setIsClicking(true);
-        const handleMouseUp = () => setIsClicking(false);
-        const handleMouseEnter = () => setIsVisible(true);
-        const handleMouseLeave = () => setIsVisible(false);
+        const handleMouseOver = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            // robust check for interactive elements
+            const isInteractive =
+                target.tagName === 'BUTTON' ||
+                target.tagName === 'A' ||
+                target.closest('button') ||
+                target.closest('a') ||
+                target.closest('[role="button"]') ||
+                target.classList.contains('cursor-hover') ||
+                target.tagName === 'INPUT' ||
+                target.tagName === 'TEXTAREA';
+
+            if (isInteractive) {
+                setCursorVariant('hover');
+            } else {
+                setCursorVariant('default');
+            }
+        };
 
         window.addEventListener('mousemove', moveCursor);
         window.addEventListener('mousedown', handleMouseDown);
         window.addEventListener('mouseup', handleMouseUp);
-        document.body.addEventListener('mouseenter', handleMouseEnter);
-        document.body.addEventListener('mouseleave', handleMouseLeave);
+        // Use mouseover for event delegation to detect hover on elements
+        window.addEventListener('mouseover', handleMouseOver);
 
         return () => {
             document.body.style.cursor = 'auto';
             window.removeEventListener('mousemove', moveCursor);
             window.removeEventListener('mousedown', handleMouseDown);
             window.removeEventListener('mouseup', handleMouseUp);
-            document.body.removeEventListener('mouseenter', handleMouseEnter);
-            document.body.removeEventListener('mouseleave', handleMouseLeave);
+            window.removeEventListener('mouseover', handleMouseOver);
         };
     }, [mouseX, mouseY]);
 
+    const variants: Variants = {
+        default: {
+            width: 16,
+            height: 16,
+            backgroundColor: '#ffffff',
+            border: '0px solid transparent',
+            mixBlendMode: 'difference',
+        },
+        hover: {
+            width: 64,
+            height: 64,
+            backgroundColor: 'transparent',
+            border: '1px solid #ffffff',
+            mixBlendMode: 'difference',
+        },
+        click: {
+            width: 12,
+            height: 12,
+            backgroundColor: '#ffffff',
+            border: '0px solid transparent',
+            mixBlendMode: 'difference',
+            scale: 0.8,
+        },
+    };
+
     return (
         <motion.div
+            className="fixed top-0 left-0 rounded-full pointer-events-none z-[9999] hidden md:block" // Hidden on mobile
             style={{
-                x: cursorX,
-                y: cursorY,
-                opacity: isVisible ? 1 : 0,
+                x: mouseX,
+                y: mouseY,
+                translateX: '-50%',
+                translateY: '-50%',
+                position: 'fixed',
             }}
-            className="fixed top-0 left-0 pointer-events-none z-[9999] mix-blend-difference hidden md:block"
-        >
-            <AnimatePresence mode="wait">
-                {isPointer ? (
-                    /* Pointer State (Hovering) - Large Ring */
-                    <motion.div
-                        key="pointer"
-                        initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{
-                            scale: isClicking ? 0.8 : 1, // Shrink slightly on click
-                            opacity: 1,
-                            borderRadius: '50%'
-                        }}
-                        exit={{ scale: 0.5, opacity: 0 }}
-                        className="absolute -translate-x-1/2 -translate-y-1/2 w-8 h-8 border border-white rounded-full bg-transparent"
-                    />
-                ) : (
-                    /* Default State - Small Dot */
-                    <motion.div
-                        key="default"
-                        initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{
-                            scale: 1,
-                            opacity: 1
-                        }}
-                        exit={{ scale: 0.5, opacity: 0 }}
-                        className="absolute -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full"
-                    />
-                )}
-            </AnimatePresence>
-        </motion.div>
+            variants={variants}
+            animate={cursorVariant}
+            transition={{
+                type: 'spring',
+                stiffness: 500,
+                damping: 28,
+            }}
+        />
     );
 }

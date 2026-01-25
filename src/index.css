@@ -12,13 +12,15 @@
 
 @layer base {
 
-  /* Aggressively Hide Default Cursor Globally */
-  html,
-  body,
-  *,
-  *::before,
-  *::after {
-    cursor: none !important;
+  /* Aggressively Hide Default Cursor Globally - Desktop Only */
+  @media (min-width: 768px) {
+    html,
+    body,
+    *,
+    *::before,
+    *::after {
+      cursor: none !important;
+    }
   }
 }
 

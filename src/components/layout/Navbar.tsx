@@ -2,25 +2,101 @@ import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Search, ShoppingBag, Menu, X, Sun, Moon, Globe } from 'lucide-react';
+import { Search, ShoppingBag, Menu, X, Sun, Moon, Globe, ChevronDown } from 'lucide-react';
 import { useUIStore, useCartStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import React from 'react';
 import LogoWhite from '@/assets/main logo white.png';
-import LogoBlack from '@/assets/logo.png';
+import LogoDark from '@/assets/logo.png';
 
-const navLinks = [
-  { key: 'shop', href: '/shop', label: 'Shop' },
+
+
+interface NavLinkItem {
+  key: string;
+  href: string;
+  label: string;
+  comingSoon?: boolean;
+  children?: NavLinkItem[];
+}
+
+const navLinks: NavLinkItem[] = [
+  {
+    key: 'shop',
+    href: '#', // Non-clickable
+    label: 'Shop',
+    children: [
+      { key: 'all', href: '/shop', label: 'All Products' },
+      { key: 'hoodies', href: '/collections/hoodies', label: 'Oversized Hoodies' },
+      { key: 'sweatpants', href: '#', label: 'Sweatpants', comingSoon: true },
+      { key: 'sportswear', href: '#', label: 'Sports Wear', comingSoon: true },
+    ]
+  },
   { key: 'newArrivals', href: '/collections/new-arrivals', label: 'New Arrivals' },
-  { key: 'hoodies', href: '/collections/hoodies', label: 'Oversized Hoodies' },
-  { key: 'sweatpants', href: '/collections/sweatpants', label: 'Sweatpants' },
   { key: 'lookbook', href: '/lookbook', label: 'Lookbook' },
   { key: 'brandStory', href: '/brand-story', label: 'Our Story' },
 ];
 
-const MagneticLink = ({ title, href, isActive, isLightMode }: { title: string, href: string, isActive: boolean, isLightMode: boolean }) => {
-  const ref = useRef<HTMLAnchorElement>(null);
+const GlitchText = ({ text, isActive }: { text: string, isActive: boolean }) => {
+  const [isGlitching, setIsGlitching] = useState(false);
+
+  // Trigger intense glitch on click
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsGlitching(true);
+    setTimeout(() => setIsGlitching(false), 600); // 600ms intense glitch
+  };
+
+  return (
+    <motion.span
+      className="relative inline-block overflow-hidden"
+      onClick={handleClick}
+      whileHover={{ scale: 1.05 }}
+    >
+      <span className="relative z-10 flex items-center gap-2">
+        {text}
+        <span className="text-[10px] bg-red-500 text-white px-1 rounded uppercase tracking-widest font-bold">
+          Soon
+        </span>
+      </span>
+
+      {/* Glitch Layers */}
+      <AnimatePresence>
+        {(isGlitching || isActive) && (
+          <>
+            <motion.span
+              className="absolute top-0 left-0 -z-10 text-red-500 mix-blend-screen opacity-70"
+              animate={{
+                x: isGlitching ? [-2, 2, -1, 3, -2] : [-1, 1, -1],
+                y: isGlitching ? [1, -1, 2, -2, 1] : 0,
+                opacity: [0.5, 0.8, 0.5]
+              }}
+              transition={{ repeat: Infinity, duration: isGlitching ? 0.1 : 0.2 }}
+            >
+              {text} <span className="text-[10px] uppercase">Soon</span>
+            </motion.span>
+            <motion.span
+              className="absolute top-0 left-0 -z-10 text-blue-500 mix-blend-screen opacity-70"
+              animate={{
+                x: isGlitching ? [2, -2, 1, -3, 2] : [1, -1, 1],
+                y: isGlitching ? [-1, 1, -2, 2, -1] : 0,
+                opacity: [0.5, 0.8, 0.5]
+              }}
+              transition={{ repeat: Infinity, duration: isGlitching ? 0.1 : 0.25, delay: 0.05 }}
+            >
+              {text} <span className="text-[10px] uppercase">Soon</span>
+            </motion.span>
+          </>
+        )}
+      </AnimatePresence>
+    </motion.span>
+  );
+};
+
+const MagneticLink = ({ link, isActive }: { link: NavLinkItem, isActive: boolean }) => {
+  const ref = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Magnetic Pull Logic
   const x = useMotionValue(0);
@@ -28,7 +104,7 @@ const MagneticLink = ({ title, href, isActive, isLightMode }: { title: string, h
   const mouseX = useSpring(x, { stiffness: 150, damping: 15, mass: 0.1 });
   const mouseY = useSpring(y, { stiffness: 150, damping: 15, mass: 0.1 });
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
     const xPos = e.clientX - left - width / 2;
     const yPos = e.clientY - top - height / 2;
@@ -40,31 +116,39 @@ const MagneticLink = ({ title, href, isActive, isLightMode }: { title: string, h
     x.set(0);
     y.set(0);
     setIsHovered(false);
+    setIsDropdownOpen(false);
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    if (link.children) setIsDropdownOpen(true);
   };
 
   return (
-    <motion.div style={{ x: mouseX, y: mouseY }}>
+    <motion.div
+      ref={ref}
+      style={{ x: mouseX, y: mouseY }}
+      onMouseEnter={handleMouseEnter}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="relative z-50"
+    >
       <Link
-        to={href}
-        ref={ref}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
+        to={link.href}
+        onClick={(e) => {
+          if (link.href === '#') e.preventDefault();
+        }}
         className={cn(
           'relative px-5 py-2.5 rounded-full text-sm font-medium transition-colors duration-300 block',
-          isActive
-            ? (isLightMode ? 'text-white' : 'text-black')
-            : (isLightMode ? 'text-white/60 hover:text-white' : 'text-black/60 hover:text-black')
+          isActive ? 'text-white' : 'text-white/60 hover:text-white',
+          link.href === '#' && 'cursor-default' // Make parent 'Shop' cursor default if intended
         )}
       >
         {/* Sliding Background Pill */}
         {isHovered && (
           <motion.div
             layoutId="navbar-hover-pill"
-            className={cn(
-              "absolute inset-0 rounded-full -z-10 backdrop-blur-md",
-              isLightMode ? "bg-white/10" : "bg-black/5"
-            )}
+            className="absolute inset-0 rounded-full -z-10 backdrop-blur-md bg-white/10"
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
           />
         )}
@@ -73,18 +157,15 @@ const MagneticLink = ({ title, href, isActive, isLightMode }: { title: string, h
         {isActive && (
           <motion.div
             layoutId="navbar-active-pill"
-            className={cn(
-              "absolute inset-0 rounded-full -z-10 shadow-[0_0_15px_rgba(255,255,255,0.1)]",
-              isLightMode ? "bg-white/5 border border-white/10" : "bg-black/5 border border-black/10"
-            )}
+            className="absolute inset-0 rounded-full -z-10 shadow-[0_0_15px_rgba(255,255,255,0.1)] bg-white/5 border border-white/10"
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
           />
         )}
 
         <div className="relative overflow-hidden flex flex-col items-center">
-          {/* Primary Text */}
+          {/* Primary Text with Split Animation */}
           <span className="flex items-center gap-[3px] antialiased">
-            {title.split(" ").map((word, i) => (
+            {link.label.split(" ").map((word, i) => (
               <span key={i} className="relative overflow-hidden flex">
                 <motion.span
                   animate={isHovered ? { y: "-100%" } : { y: 0 }}
@@ -103,9 +184,43 @@ const MagneticLink = ({ title, href, isActive, isLightMode }: { title: string, h
                 </motion.span>
               </span>
             ))}
+            {link.children && <ChevronDown className={cn("w-3 h-3 ml-1 transition-transform duration-300", isDropdownOpen ? "rotate-180" : "")} />}
           </span>
         </div>
       </Link>
+
+      {/* Dropdown Menu */}
+      <AnimatePresence>
+        {isDropdownOpen && link.children && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 py-2 w-56 bg-black/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-xl overflow-hidden"
+          >
+            {link.children.map((child) => (
+              child.comingSoon ? (
+                <div
+                  key={child.key}
+                  className="block px-4 py-3 text-sm text-white/50 cursor-not-allowed border-b border-white/5 last:border-0"
+                >
+                  <GlitchText text={child.label} isActive={false} />
+                </div>
+              ) : (
+                <Link
+                  key={child.key}
+                  to={child.href}
+                  className="block px-4 py-3 text-sm text-white/70 hover:text-white hover:bg-white/10 transition-colors border-b border-white/5 last:border-0"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {child.label}
+                </Link>
+              )
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
@@ -116,19 +231,13 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const { isDarkMode, toggleDarkMode, setIsSearchOpen, language, setLanguage, heroTheme } = useUIStore();
+  const { isDarkMode, toggleDarkMode, setIsSearchOpen, language, setLanguage } = useUIStore();
   const { getItemCount, setIsOpen: setCartOpen } = useCartStore();
   const itemCount = getItemCount();
+  const isHome = location.pathname === '/'; // Check if on homepage
 
-  const isHomePage = location.pathname === '/';
-
-  // Logic for adaptive colors:
-  // 1. If scrolled: Follow the global theme (Dark mode background needs white text).
-  // 2. If not scrolled AND on Home: Follow the hero image theme.
-  // 3. Otherwise: Follow the global theme.
-  const useLightContent = isScrolled
-    ? isDarkMode
-    : (isHomePage ? heroTheme === 'dark' : isDarkMode);
+  // Enforce "Dark Mode" style (White text) always as per "one theme" request.
+  // We ignore useLightContent logic and force light-on-dark styles.
 
   // Container Tilt
   const x = useMotionValue(0);
@@ -169,26 +278,31 @@ export function Navbar() {
         className={cn(
           'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
           isScrolled
-            ? 'py-3 bg-background/80 backdrop-blur-md shadow-md border-b border-foreground/5'
+            ? 'py-2 backdrop-blur-xl border-b border-white/5' // Minimal padding on scroll
             : 'py-6 bg-transparent'
         )}
       >
         <div className="container-vero pointer-events-auto">
           <nav className="flex items-center justify-between relative">
             {/* Logo */}
+            {/* Logo */}
+            {/* Logo */}
             <Link
               to="/"
-              className="relative z-50 transition-colors duration-200"
+              className={cn(
+                "relative z-50 transition-all duration-300",
+                isScrolled ? "bg-white p-2 rounded-lg shadow-lg" : "bg-transparent p-0 shadow-none scale-110"
+              )}
             >
               <img
-                src={useLightContent ? LogoWhite : LogoBlack}
+                src={isScrolled ? LogoDark : (isHome || isDarkMode ? LogoWhite : LogoDark)}
                 alt="VERO"
                 className="h-8 md:h-10 w-auto object-contain"
               />
             </Link>
 
             {/* Desktop Navigation - Magnetic & Glass */}
-            <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 perspective-1000">
+            <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 perspective-1000 z-50">
               <motion.div
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
@@ -200,79 +314,62 @@ export function Navbar() {
                 }}
                 className={cn(
                   "flex items-center gap-1.5 px-2 py-2 rounded-full border transition-all duration-500",
-                  isScrolled
-                    ? "bg-[#0a0a0a]/80 backdrop-blur-2xl border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)] ring-1 ring-white/[0.05]"
-                    : useLightContent
-                      ? "bg-white/10 backdrop-blur-md border-white/20"
-                      : "bg-black/5 backdrop-blur-md border-black/10"
+                  // Dark Glass Background for visibility on all surfaces
+                  "bg-black/60 backdrop-blur-xl border-white/10 shadow-2xl"
                 )}
               >
                 {navLinks.map((link) => (
                   <MagneticLink
                     key={link.key}
-                    title={link.label}
-                    href={link.href}
+                    link={link}
                     isActive={location.pathname === link.href}
-                    isLightMode={useLightContent}
                   />
                 ))}
               </motion.div>
             </div>
 
             {/* Right Actions */}
-            <div className="flex items-center gap-3 relative z-50">
-              <button
-                onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
-                className={cn(
-                  "btn-ghost flex items-center gap-1.5 text-xs uppercase tracking-wider hover:bg-white/10 transition-colors duration-200",
-                  useLightContent ? "!text-white" : "!text-black"
-                )}
-              >
-                <Globe className="h-4 w-4" />
-                <span className="hidden sm:inline">{language === 'en' ? 'AR' : 'EN'}</span>
-              </button>
+            <div className="flex items-center gap-2 relative z-50">
+              {/* Wrapped in a glass pill for visibility */}
+              <div className="flex items-center gap-1 px-2 py-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl">
+                <button
+                  onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
+                  className="btn-ghost flex items-center gap-1.5 text-xs uppercase tracking-wider hover:bg-white/10 p-2 rounded-full transition-colors duration-200 text-white"
+                >
+                  <Globe className="h-4 w-4" />
+                  <span className="hidden sm:inline">{language === 'en' ? 'AR' : 'EN'}</span>
+                </button>
 
-              <button
-                onClick={toggleDarkMode}
-                className={cn(
-                  "btn-ghost p-2 hover:bg-white/10 transition-colors duration-200",
-                  useLightContent ? "!text-white" : "!text-black"
-                )}
-              >
-                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </button>
+                <button
+                  onClick={toggleDarkMode}
+                  className="btn-ghost p-2 rounded-full hover:bg-white/10 transition-colors duration-200 text-white"
+                >
+                  {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                </button>
 
-              <button
-                onClick={() => setIsSearchOpen(true)}
-                className={cn(
-                  "btn-ghost p-2 hover:bg-white/10 transition-colors duration-200",
-                  useLightContent ? "!text-white" : "!text-black"
-                )}
-              >
-                <Search className="h-5 w-5" />
-              </button>
+                <button
+                  onClick={() => setIsSearchOpen(true)}
+                  className="btn-ghost p-2 rounded-full hover:bg-white/10 transition-colors duration-200 text-white"
+                >
+                  <Search className="h-5 w-5" />
+                </button>
 
-              <button
-                onClick={() => setCartOpen(true)}
-                className={cn(
-                  "btn-ghost p-2 relative hover:bg-white/10 transition-colors duration-200",
-                  useLightContent ? "!text-white" : "!text-black"
-                )}
-              >
-                <ShoppingBag className="h-5 w-5" />
-                {itemCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-red-500 text-white text-[10px] font-medium flex items-center justify-center">
-                    {itemCount}
-                  </span>
-                )}
-              </button>
+                <button
+                  onClick={() => setCartOpen(true)}
+                  className="btn-ghost p-2 rounded-full relative hover:bg-white/10 transition-colors duration-200 text-white"
+                >
+                  <ShoppingBag className="h-5 w-5" />
+                  {itemCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-red-500 text-white text-[10px] font-medium flex items-center justify-center">
+                      {itemCount}
+                    </span>
+                  )}
+                </button>
+              </div>
 
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className={cn(
-                  "btn-ghost p-2 lg:hidden hover:bg-white/10 transition-colors duration-200",
-                  useLightContent ? "!text-white" : "!text-black"
-                )}
+                className="btn-ghost p-2 lg:hidden bg-black/60 backdrop-blur-xl border border-white/10 rounded-full hover:bg-white/10 transition-colors duration-200 text-white"
               >
                 <Menu className="h-5 w-5" />
               </button>
@@ -304,7 +401,7 @@ export function Navbar() {
             >
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center justify-center w-full">
-                  <img src={LogoWhite} alt="VERO" className="h-8 w-auto object-contain" />
+                  <img src={isDarkMode ? LogoWhite : LogoDark} alt="VERO" className="h-8 w-auto object-contain" />
                 </div>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -315,19 +412,49 @@ export function Navbar() {
               </div>
               <nav className="flex flex-col gap-6 mt-8 px-4">
                 {navLinks.map((link) => (
-                  <Link
-                    key={link.key}
-                    to={link.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="group flex items-center justify-between py-2 border-b border-white/5"
-                  >
-                    <span className="text-3xl font-display font-light text-white/80 group-hover:text-white transition-colors duration-300">
-                      {link.label}
-                    </span>
-                    <span className="text-white/40 group-hover:text-[#4ade80] transition-colors duration-300">
-                      →
-                    </span>
-                  </Link>
+                  <div key={link.key}>
+                    {/* Mobile Main Links */}
+                    <div
+                      onClick={() => {
+                        if (link.href !== '#') setIsMobileMenuOpen(false);
+                      }}
+                      className="group flex flex-col py-2 border-b border-white/5"
+                    >
+                      <div className="flex justify-between items-center w-full">
+                        <span className={cn("text-3xl font-display font-light text-white/80 group-hover:text-white transition-colors duration-300", link.href === '#' && "opacity-70")}>
+                          {link.href !== '#' ? <Link to={link.href}>{link.label}</Link> : link.label}
+                        </span>
+                        {link.href !== '#' && (
+                          <span className="text-white/40 group-hover:text-[#4ade80] transition-colors duration-300">
+                            →
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Mobile Submenu */}
+                      {link.children && (
+                        <div className="pl-4 flex flex-col gap-3 mt-3">
+                          {link.children.map(child => (
+                            <div key={child.key}>
+                              {child.comingSoon ? (
+                                <div className="flex items-center gap-2 text-lg text-white/40">
+                                  {child.label} <span className="text-xs bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded">Soon</span>
+                                </div>
+                              ) : (
+                                <Link
+                                  to={child.href}
+                                  onClick={() => setIsMobileMenuOpen(false)}
+                                  className="text-lg text-white/60 hover:text-white block"
+                                >
+                                  {child.label}
+                                </Link>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 ))}
               </nav>
             </motion.div>

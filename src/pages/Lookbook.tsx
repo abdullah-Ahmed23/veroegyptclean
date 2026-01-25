@@ -1,7 +1,8 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 // Import images
 import heroImage from '@/assets/hero-1.jpg';
@@ -9,11 +10,78 @@ import lookbook1 from '@/assets/lookbook-1.jpg';
 import productHoodie1 from '@/assets/product-hoodie-1.jpg';
 import productSweatpants1 from '@/assets/product-sweatpants-1.jpg';
 
+// --- Shared Glitch Components (could be extracted later) ---
+const GlitchText = ({ text, className, size = "large" }: { text: string, className?: string, size?: "large" | "small" }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div
+      className={cn("relative inline-block overflow-hidden", className)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <span className="relative z-10 block">{text}</span>
+      <AnimatePresence>
+        {isHovered && (
+          <>
+            <motion.span
+              className="absolute top-0 left-0 -z-10 text-red-500/80 mix-blend-screen select-none"
+              animate={{ x: [-2, 2, -1, 0], opacity: [0, 1, 0.5, 0] }}
+              transition={{ repeat: Infinity, duration: 0.15, ease: "linear" }}
+            >
+              {text}
+            </motion.span>
+            <motion.span
+              className="absolute top-0 left-0 -z-10 text-cyan-500/80 mix-blend-screen select-none"
+              animate={{ x: [2, -2, 1, 0], opacity: [0, 1, 0.5, 0] }}
+              transition={{ repeat: Infinity, duration: 0.2, delay: 0.05, ease: "linear" }}
+            >
+              {text}
+            </motion.span>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+const ScrambleText = ({ text, className }: { text: string, className?: string }) => {
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
+  const [display, setDisplay] = useState(text);
+  const containerRef = useRef(null);
+
+  // Trigger animation when in view
+  const animateScramble = () => {
+    let iteration = 0;
+    const interval = setInterval(() => {
+      setDisplay(prev =>
+        text.split("").map((letter, index) => {
+          if (index < iteration) return text[index];
+          return letters[Math.floor(Math.random() * 26)];
+        }).join("")
+      );
+      if (iteration >= text.length) clearInterval(interval);
+      iteration += 1 / 3;
+    }, 30);
+  };
+
+  return (
+    <motion.span
+      ref={containerRef}
+      className={className}
+      onViewportEnter={animateScramble}
+      viewport={{ once: true }}
+    >
+      {display}
+    </motion.span>
+  );
+};
+
 const lookbookImages = [
-  { src: heroImage, title: 'Oversized Silhouettes', subtitle: 'Fall 2024' },
-  { src: lookbook1, title: 'Neutral Tones', subtitle: 'Essential Layers' },
-  { src: productHoodie1, title: 'Premium Textures', subtitle: 'Heavyweight Fleece' },
-  { src: productSweatpants1, title: 'Relaxed Fits', subtitle: 'Everyday Comfort' },
+  { src: heroImage, title: 'OVERSIZED_SILHOUETTES', subtitle: 'FALL_2024//LOG_01' },
+  { src: lookbook1, title: 'NEUTRAL_TONES', subtitle: 'ESSENTIAL_LAYERS//LOG_02' },
+  { src: productHoodie1, title: 'PREMIUM_TEXTURES', subtitle: 'HEAVYWEIGHT_FLEECE//LOG_03' },
+  { src: productSweatpants1, title: 'RELAXED_FITS', subtitle: 'EVERYDAY_COMFORT//LOG_04' },
 ];
 
 const Lookbook = () => {
@@ -24,65 +92,81 @@ const Lookbook = () => {
   });
 
   return (
-    <div ref={containerRef} className="pt-24">
-      {/* Header */}
-      <section className="container-vero py-16 text-center">
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="caption text-muted-foreground mb-4"
-        >
-          Fall/Winter 2024
-        </motion.p>
-        <motion.h1
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="heading-display mb-6"
-        >
-          Lookbook
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="body-large text-muted-foreground max-w-xl mx-auto"
-        >
-          A visual exploration of our latest collection.
-          Understated luxury meets everyday comfort.
-        </motion.p>
+    <div ref={containerRef} className="bg-background min-h-screen text-foreground overflow-x-hidden">
+
+      {/* Hero Section */}
+      <section className="relative h-[60vh] flex items-center justify-center overflow-hidden bg-black">
+        <div className="absolute inset-0 z-0">
+          <img
+            src={lookbook1} // Using lookbook image for header
+            alt="Lookbook Header"
+            className="w-full h-full object-cover grayscale opacity-50"
+          />
+          <div className="absolute inset-0 bg-black/60" />
+
+          {/* Scanline Overlay */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-10 bg-[length:100%_4px,6px_100%] pointer-events-none opacity-40 mix-blend-overlay" />
+        </div>
+
+        <div className="relative z-20 text-center px-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mb-4"
+          >
+            <span className="inline-block px-3 py-1 border border-white/30 bg-black/50 backdrop-blur-md text-xs font-mono uppercase tracking-[0.2em] text-white">
+              VISUAL_DATABASE_V1
+            </span>
+          </motion.div>
+
+          <h1 className="heading-display text-6xl md:text-9xl tracking-tighter text-white mix-blend-difference">
+            <GlitchText text="LOOKBOOK" />
+          </h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="max-w-xl mx-auto mt-6 text-lg font-light text-[#F5DEB3]"
+          >
+            <ScrambleText text="A visual exploration of our latest collection." />
+          </motion.p>
+        </div>
       </section>
 
       {/* Editorial Grid */}
-      <section className="container-vero pb-24">
-        <div className="space-y-8">
+      <section className="relative py-24">
+        {/* Vertical Guide Line */}
+        <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-border/30 hidden lg:block h-full z-0" />
+
+        <div className="container-vero space-y-32 relative z-10">
           {lookbookImages.map((image, index) => (
             <LookbookItem
               key={index}
               image={image}
               index={index}
-              scrollYProgress={scrollYProgress}
             />
           ))}
         </div>
       </section>
 
       {/* CTA */}
-      <section className="section-padding bg-card text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <h2 className="heading-2 mb-6">Shop the Collection</h2>
-          <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-            Every piece in this lookbook is available now.
-            Explore our full range of premium streetwear.
+      <section className="section-padding relative overflow-hidden bg-black text-white text-center border-t border-white/10">
+        <div className="relative z-10">
+          <h2 className="heading-2 mb-6"><ScrambleText text="ACQUIRE THE UNIFORM" /></h2>
+          <p className="text-white/60 mb-8 max-w-md mx-auto">
+            System ready. Inventory status: Available.
           </p>
-          <Link to="/shop" className="btn-primary inline-flex items-center gap-2">
-            Shop All <ArrowRight className="h-4 w-4" />
+          <Link to="/shop" className="group relative inline-flex items-center gap-4 px-8 py-3 bg-white text-black font-bold uppercase tracking-widest overflow-hidden hover:bg-white/90 transition-colors">
+            <span className="relative z-10">Initiate Purchase</span>
+            <ArrowRight className="h-4 w-4 relative z-10 group-hover:translate-x-1 transition-transform" />
           </Link>
-        </motion.div>
+        </div>
+
+        {/* Background noise/grain */}
+        <div className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-overlay"
+          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
+        />
       </section>
     </div>
   );
@@ -91,59 +175,49 @@ const Lookbook = () => {
 interface LookbookItemProps {
   image: { src: string; title: string; subtitle: string };
   index: number;
-  scrollYProgress: any;
 }
 
 const LookbookItem = ({ image, index }: LookbookItemProps) => {
-  const itemRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: itemRef,
-    offset: ['start end', 'end start'],
-  });
-
-  const y = useTransform(scrollYProgress, [0, 1], [50, -50]);
-  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.95, 1, 0.95]);
-
   return (
     <motion.div
-      ref={itemRef}
-      style={{ opacity }}
-      className={`grid grid-cols-1 lg:grid-cols-2 gap-8 items-center ${index % 2 === 1 ? 'lg:grid-flow-dense' : ''
-        }`}
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-10%" }}
+      transition={{ duration: 0.8 }}
+      className={`flex flex-col lg:flex-row gap-12 items-center ${index % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}
     >
-      {/* Image */}
-      <motion.div
-        style={{ y, scale }}
-        className={`relative aspect-[3/4] overflow-hidden ${index % 2 === 1 ? 'lg:col-start-2' : ''
-          }`}
-      >
-        <img
-          src={image.src}
-          alt={image.title}
-          className="w-full h-full object-cover"
-        />
-      </motion.div>
+      {/* Image Container with Glitch Border */}
+      <div className="flex-1 w-full relative group">
+        <div className="absolute inset-0 border border-foreground/30 translate-x-2 translate-y-2 group-hover:translate-x-1 group-hover:translate-y-1 transition-transform duration-500" />
+        <div className="relative aspect-[3/4] overflow-hidden bg-zinc-900 border border-border">
+          <div className="absolute inset-0 bg-foreground/10 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none mix-blend-overlay" />
+          <img
+            src={image.src}
+            alt={image.title}
+            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-out scale-100 group-hover:scale-105"
+          />
+        </div>
 
-      {/* Text */}
-      <div className={`${index % 2 === 1 ? 'lg:col-start-1 lg:row-start-1 lg:text-right' : ''}`}>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="caption text-muted-foreground mb-2"
+        {/* Tech Decorators */}
+        <div className="absolute -top-2 -left-2 w-4 h-4 border-l-2 border-t-2 border-foreground" />
+        <div className="absolute -bottom-2 -right-2 w-4 h-4 border-r-2 border-b-2 border-foreground" />
+      </div>
+
+      {/* Text Container */}
+      <div className={`flex-1 text-center ${index % 2 === 1 ? 'lg:text-right' : 'lg:text-left'}`}>
+        <motion.div
+          initial={{ opacity: 0, x: index % 2 === 1 ? -20 : 20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
         >
-          {image.subtitle}
-        </motion.p>
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.1 }}
-          className="heading-2"
-        >
-          {image.title}
-        </motion.h2>
+          <p className="font-mono text-xs text-muted-foreground mb-4 uppercase tracking-widest">
+            <ScrambleText text={image.subtitle} />
+          </p>
+          <h2 className="heading-2 mb-6 group cursor-default">
+            <GlitchText text={image.title} />
+          </h2>
+          <div className={`h-px w-24 bg-foreground/30 ${index % 2 === 1 ? 'ml-auto mr-auto lg:mr-0' : 'mx-auto lg:mx-0'}`} />
+        </motion.div>
       </div>
     </motion.div>
   );

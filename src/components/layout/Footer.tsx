@@ -30,7 +30,7 @@ export function Footer() {
 
   return (
     <footer className="bg-card border-t border-border">
-      {/* Newsletter Section */}
+      {/* Feedback Section */}
       <div className="container-vero section-padding border-b border-border">
         <div className="max-w-xl mx-auto text-center">
           <motion.h3
@@ -39,7 +39,7 @@ export function Footer() {
             viewport={{ once: true }}
             className="heading-3 mb-3"
           >
-            {t('footer.newsletter.title')}
+            WE VALUE YOUR FEEDBACK
           </motion.h3>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -48,23 +48,26 @@ export function Footer() {
             transition={{ delay: 0.1 }}
             className="text-muted-foreground mb-8"
           >
-            {t('footer.newsletter.subtitle')}
+            Help us improve your experience. Share your thoughts with us.
           </motion.p>
           <motion.form
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="flex flex-col sm:flex-row gap-3"
-            onSubmit={(e) => e.preventDefault()}
+            className="flex flex-col gap-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              alert("Thank you for your feedback!");
+            }}
           >
-            <input
-              type="email"
-              placeholder={t('footer.newsletter.placeholder')}
-              className="input-vero flex-1 border border-border rounded-none px-4 py-3"
+            <textarea
+              placeholder="Your feedback..."
+              rows={4}
+              className="input-vero w-full border border-border rounded-none px-4 py-3 resize-none bg-background focus:ring-1 focus:ring-foreground transition-all"
             />
-            <button type="submit" className="btn-primary whitespace-nowrap">
-              {t('footer.newsletter.submit')}
+            <button type="submit" className="btn-primary w-full sm:w-auto self-center px-12">
+              Values Your Feedback
             </button>
           </motion.form>
         </div>
