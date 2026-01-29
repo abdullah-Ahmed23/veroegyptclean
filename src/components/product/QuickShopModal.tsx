@@ -103,27 +103,20 @@ export function QuickShopModal({ product, isOpen, onClose }: QuickShopModalProps
                         className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]"
                     />
 
-                    <div className="fixed inset-0 flex items-center justify-center p-4 z-[210] pointer-events-none">
+                    <div className="fixed inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4 z-[210] pointer-events-none">
                         {/* Modal */}
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            initial={{ opacity: 0, y: "100%" }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: "100%" }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="w-full max-w-2xl bg-zinc-950 border border-white/10 rounded-2xl overflow-hidden shadow-2xl pointer-events-auto relative"
+                            className="w-full max-w-2xl bg-zinc-950 border-t sm:border border-white/10 rounded-t-[2rem] sm:rounded-2xl overflow-hidden shadow-2xl pointer-events-auto relative max-h-[90vh] sm:max-h-[85vh] flex flex-col"
                         >
-                            {/* Close Button */}
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onClose();
-                                }}
-                                className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full transition-colors z-20 bg-black/20 backdrop-blur-md"
-                            >
-                                <X className="w-5 h-5 text-white" />
-                            </button>
+                            {/* Draggable Handle for Mobile */}
+                            <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto my-3 sm:hidden" />
 
-                            <div className="flex flex-col md:flex-row h-full">
+                            <div className="flex flex-col md:flex-row overflow-y-auto">
                                 {/* Product Image */}
                                 <div className="w-full md:w-2/5 aspect-[4/5] bg-zinc-900">
                                     <img
@@ -134,13 +127,25 @@ export function QuickShopModal({ product, isOpen, onClose }: QuickShopModalProps
                                 </div>
 
                                 {/* Details */}
-                                <div className="flex-1 p-6 space-y-6">
-                                    <div>
-                                        <h3 className="text-sm font-black uppercase tracking-widest text-zinc-500 mb-1">{t('common.quickAdd')}</h3>
-                                        <h2 className="text-xl font-black uppercase italic text-white leading-tight">{language === 'ar' ? (product.title_ar || product.title_en) : (product.title_en || product.title_ar)}</h2>
-                                        <p className="text-lg font-black text-vero-gold mt-2">
-                                            {formatPrice(selectedVariant?.price || product.variants[0].price, language)}
-                                        </p>
+                                <div className="flex-1 p-5 sm:p-8 space-y-5 sm:space-y-8">
+                                    <div className="flex justify-between items-start">
+                                        <div className="space-y-1">
+                                            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">{t('common.quickAdd')}</h3>
+                                            <h2 className="text-xl sm:text-2xl font-black uppercase italic text-white leading-tight">{language === 'ar' ? (product.title_ar || product.title_en) : (product.title_en || product.title_ar)}</h2>
+                                            <p className="text-lg font-black text-[#49d77e] mt-1">
+                                                {formatPrice(selectedVariant?.price || product.variants[0].price, language)}
+                                            </p>
+                                        </div>
+
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onClose();
+                                            }}
+                                            className="p-2 hover:bg-white/10 rounded-full transition-colors bg-white/5"
+                                        >
+                                            <X className="w-5 h-5 text-white" />
+                                        </button>
                                     </div>
 
                                     {/* Color selection */}
@@ -251,9 +256,9 @@ export function QuickShopModal({ product, isOpen, onClose }: QuickShopModalProps
 
                                         <button
                                             onClick={handleAddToCart}
-                                            className="w-full bg-white text-black py-4 rounded-xl font-black uppercase text-xs tracking-widest flex items-center justify-center gap-2 hover:bg-vero-gold transition-colors active:scale-95 duration-200"
+                                            className="w-full bg-white text-black py-4 sm:py-5 rounded-xl font-black uppercase text-xs sm:text-sm tracking-widest flex items-center justify-center gap-3 hover:bg-[#49d77e] hover:text-white transition-all active:scale-95 duration-200"
                                         >
-                                            <ShoppingBag className="w-4 h-4" />
+                                            <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
                                             {t('product.addToCart')}
                                         </button>
                                     </div>
