@@ -16,7 +16,11 @@ export const products: Product[] = [
     id: 'prod-1',
     handle: 'essential-oversized-hoodie',
     title: 'Essential Oversized Hoodie',
+    title_en: 'Essential Oversized Hoodie',
+    title_ar: 'هوديز أوفرسايز أساسي',
     description: 'Our signature oversized hoodie crafted from premium 400GSM cotton fleece. Features a relaxed drop shoulder, kangaroo pocket, and ribbed cuffs. The perfect foundation for any wardrobe.',
+    description_en: 'Our signature oversized hoodie crafted from premium 400GSM cotton fleece. Features a relaxed drop shoulder, kangaroo pocket, and ribbed cuffs. The perfect foundation for any wardrobe.',
+    description_ar: 'هوديز أوفرسايز المميز لدينا مصنوع من صوف قطني فاخر بوزن 400 جرام لكل متر مربع. يتميز بأكتاف منسدلة مريحة وجيب كنغر وأساور مضلعة. الأساس المثالي لأي خزانة ملابس.',
     category: 'hoodies',
     collection: 'essentials',
     images: ['/placeholder.svg', '/placeholder.svg'],
@@ -39,7 +43,11 @@ export const products: Product[] = [
     id: 'prod-2',
     handle: 'cloud-heavyweight-hoodie',
     title: 'Cloud Heavyweight Hoodie',
+    title_en: 'Cloud Heavyweight Hoodie',
+    title_ar: 'كلوود هوديز ثقيل',
     description: 'Experience unparalleled comfort with our Cloud Heavyweight Hoodie. 450GSM triple-brushed fleece interior, double-stitched seams, and an exaggerated oversized fit that drapes perfectly.',
+    description_en: 'Experience unparalleled comfort with our Cloud Heavyweight Hoodie. 450GSM triple-brushed fleece interior, double-stitched seams, and an exaggerated oversized fit that drapes perfectly.',
+    description_ar: 'استمتع براحة لا مثيل لها مع كلوود هوديز الثقيل. جزء داخلي من الصوف الممشط ثلاثياً بوزن 450 جرام لكل متر مربع، وطبقات بخياطة مزدوجة، وقصة أوفرسايز مبالغ فيها تنسدل بشكل مثالي.',
     category: 'hoodies',
     collection: 'new-arrivals',
     images: ['/placeholder.svg', '/placeholder.svg'],
@@ -51,6 +59,7 @@ export const products: Product[] = [
         colorHex: color.hex,
         price: 2999,
         available: true,
+        stock: 5,
         sku: `CLD-HOD-${color.id.toUpperCase()}-${size}`
       }))
     ),
@@ -61,7 +70,11 @@ export const products: Product[] = [
     id: 'prod-3',
     handle: 'relaxed-sweatpants',
     title: 'Relaxed Sweatpants',
+    title_en: 'Relaxed Sweatpants',
+    title_ar: 'بنطال رياضي مريح',
     description: 'The ultimate in relaxed luxury. These baggy sweatpants feature a high-rise waist with adjustable drawcord, deep pockets, and tapered ankle cuffs. Made from our signature soft-touch fleece.',
+    description_en: 'The ultimate in relaxed luxury. These baggy sweatpants feature a high-rise waist with adjustable drawcord, deep pockets, and tapered ankle cuffs. Made from our signature soft-touch fleece.',
+    description_ar: 'قمة الراحة والاسترخاء. يتميز هذا البنطال الرياضي الواسع بخصر مرتفع مع رباط قابل للتعديل وجيوب عميقة وأساور كاحل مدببة. مصنوع من الصوف الناعم المميز لدينا.',
     category: 'sweatpants',
     collection: 'essentials',
     images: ['/placeholder.svg', '/placeholder.svg'],
@@ -73,6 +86,7 @@ export const products: Product[] = [
         colorHex: color.hex,
         price: 1999,
         available: true,
+        stock: 15,
         sku: `RLX-SWP-${color.id.toUpperCase()}-${size}`
       }))
     ),
@@ -154,8 +168,10 @@ export const getUniqueSizes = (): string[] => {
 export const searchProducts = (query: string): Product[] => {
   const lowerQuery = query.toLowerCase();
   return products.filter(p =>
-    p.title.toLowerCase().includes(lowerQuery) ||
-    p.description.toLowerCase().includes(lowerQuery) ||
+    p.title_en.toLowerCase().includes(lowerQuery) ||
+    p.title_ar.includes(lowerQuery) ||
+    p.description_en.toLowerCase().includes(lowerQuery) ||
+    p.description_ar.includes(lowerQuery) ||
     p.tags.some(t => t.toLowerCase().includes(lowerQuery))
   );
 };
