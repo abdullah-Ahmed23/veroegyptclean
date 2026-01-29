@@ -190,6 +190,7 @@ export const useUIStore = create<UIState>()(
         i18n.changeLanguage(lang);
         // Force LTR globally to prevent layout bugs in complex components
         document.documentElement.dir = 'ltr';
+        document.documentElement.lang = lang;
         set({ language: lang });
       },
 

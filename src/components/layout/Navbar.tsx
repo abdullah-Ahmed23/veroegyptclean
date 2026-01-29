@@ -96,6 +96,7 @@ const GlitchText = ({ text, isActive }: { text: string, isActive: boolean }) => 
 };
 
 const MagneticLink = ({ link, isActive }: { link: NavLinkItem, isActive: boolean }) => {
+  const { i18n } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -167,7 +168,7 @@ const MagneticLink = ({ link, isActive }: { link: NavLinkItem, isActive: boolean
         <div className="relative overflow-hidden flex flex-col items-center">
           {/* Primary Text with Split Animation */}
           <span className="flex items-center gap-[3px] antialiased">
-            {link.label.split(" ").map((word, i) => (
+            {(i18n.language === 'ar' ? link.label.split(" ").reverse() : link.label.split(" ")).map((word, i) => (
               <span key={i} className="relative overflow-hidden flex">
                 <motion.span
                   animate={isHovered ? { y: "-100%" } : { y: 0 }}
@@ -186,7 +187,7 @@ const MagneticLink = ({ link, isActive }: { link: NavLinkItem, isActive: boolean
                 </motion.span>
               </span>
             ))}
-            {link.children && <ChevronDown className={cn("w-3 h-3 ml-1 transition-transform duration-300", isDropdownOpen ? "rotate-180" : "")} />}
+            {link.children && <ChevronDown className={cn("w-3 h-3 ms-1 transition-transform duration-300", isDropdownOpen ? "rotate-180" : "")} />}
           </span>
         </div>
       </Link>
@@ -430,7 +431,10 @@ export function Navbar() {
                       className="group flex flex-col py-2 border-b border-border"
                     >
                       <div className="flex justify-between items-center w-full">
-                        <span className={cn("text-3xl font-display font-light text-foreground group-hover:text-[#49d77e] transition-colors duration-300")}>
+                        <span className={cn(
+                          "text-3xl font-display font-light text-foreground group-hover:text-[#49d77e] transition-colors duration-300",
+                          i18n.language === 'ar' && "text-right w-full"
+                        )}>
                           {link.href !== '#' ? <Link to={link.href}>{link.label}</Link> : link.label}
                         </span>
                         {link.href !== '#' && (
@@ -453,7 +457,10 @@ export function Navbar() {
                                 <Link
                                   to={child.href}
                                   onClick={() => setIsMobileMenuOpen(false)}
-                                  className="text-lg text-foreground group-hover:text-foreground/80 block"
+                                  className={cn(
+                                    "text-lg text-foreground group-hover:text-foreground/80 block",
+                                    i18n.language === 'ar' && "text-right"
+                                  )}
                                 >
                                   {child.label}
                                 </Link>

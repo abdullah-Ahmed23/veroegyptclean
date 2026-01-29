@@ -247,10 +247,112 @@ const resources = {
       },
       // Brand Story
       brandStory: {
+        title: 'THE VERO STORY',
+        tagline: 'BORN IN EGYPT. CRAFTED FOR THE WORLD.',
+        builtForNewWorld: 'BUILT FOR THE NEW WORLD.',
         headline: 'The VERO Story',
-        tagline: 'Born in Egypt. Crafted for the World.',
-        manifesto: 'We believe luxury should whisper, not shout.',
+        manifesto: {
+          line1: 'We believe luxury should whisper, not shout. In a world of ',
+          loudLogos: 'LOUD LOGOS',
+          vs: ' vs ',
+          quietPower: 'QUIET POWER',
+          line2: ' VERO stands for the latter.',
+        },
         founders: 'Founded by Omar Nasseh and Mohamed El Deep',
+        protocols: {
+          title: 'OUR PROTOCOLS',
+          loading: 'SYSTEM_ACTIVE...',
+          zeroCompromise: {
+            title: 'ZERO COMPROMISE',
+            desc: 'We source the finest Egyptian cotton and premium blends. No shortcuts in quality, ever.'
+          },
+          engineeredFit: {
+            title: 'ENGINEERED FIT',
+            desc: 'Every silhouette is meticulously tested for the perfect oversized aesthetic and maximum comfort.'
+          },
+          silentLuxury: {
+            title: 'SILENT LUXURY',
+            desc: 'Minimalist branding that emphasizes quality and design over hype.'
+          }
+        },
+        timeline: {
+          title: 'THE TIMELINE',
+          inception: {
+            year: '2023',
+            title: 'The Inception',
+            desc: 'A vision to bring premium streetwear to Egypt was born.'
+          },
+          prototype: {
+            year: '2024',
+            title: 'Refining the Craft',
+            desc: 'Months of sampling fabrics and perfecting fits.'
+          },
+          growth: {
+            year: '2025',
+            title: 'First Collection',
+            desc: 'Launching the VERO Essentials line to our community.'
+          },
+          expansion: {
+            year: '2026',
+            title: 'Into the Future',
+            desc: 'Expanding our reach and continuing to redefine luxury.'
+          }
+        },
+        designLab: 'DESIGN LAB',
+      },
+      // Lookbook
+      lookbook: {
+        title: 'VERO LOOKBOOK',
+        tagline: 'A visual journey through the intersection of Egyptian heritage and modern minimalism.',
+        visualDatabase: 'VISUAL DATABASE / VOL. 01',
+        ctaTitle: 'READY TO DEFINE YOUR STYLE?',
+        ctaSubtitle: 'Explore our latest drops and find the pieces that speak to your individuality.',
+        ctaButton: 'EXPLORE SHOP',
+        items: {
+          oversizedSilhouettes: 'Oversized Silhouettes',
+          neutralTones: 'Neutral Tones',
+          premiumTextures: 'Premium Textures',
+          relaxedFits: 'Relaxed Fits',
+          log01: 'LOG_01 / SILHOUETTE_STUDY',
+          log02: 'LOG_02 / COLOR_PALETTE',
+          log03: 'LOG_03 / FABRIC_DETAIL',
+          log04: 'LOG_04 / COMFORT_ENGINEERING',
+        }
+      },
+      // Contact
+      contact: {
+        title: 'GET IN TOUCH',
+        subtitle: 'Questions? Collaborations? Or just want to say hello? Our team is standing by.',
+        phone: 'Phone',
+        email: 'Email',
+        methods: {
+          instapay: 'InstaPay',
+        },
+        hours: 'Business Hours',
+        hoursDetail: 'Mon - Fri: 10:00 AM - 6:00 PM',
+      },
+      // FAQ
+      faq: {
+        title: 'FREQUENTLY ASKED QUESTIONS',
+        tagline: 'Everything you need to know about VERO.',
+        items: {
+          shipping: {
+            q: 'How long does shipping take?',
+            a: 'Standard shipping in Egypt takes 3-5 business days. International shipping is currently coming soon.'
+          },
+          payment: {
+            q: 'What payment methods do you accept?',
+            a: 'We accept Cash on Delivery (COD), Mobile Wallets (Vodafone Cash, etc.), and InstaPay.'
+          },
+          returns: {
+            q: 'What is your return policy?',
+            a: 'We offer a 14-day return and exchange policy for all items in their original condition.'
+          },
+          restock: {
+            q: 'Do you restock sold-out items?',
+            a: 'Our drops are strictly limited. Some essentials may be restocked, but marquee releases often remain exclusive.'
+          },
+        }
       },
       // Common
       common: {
@@ -351,6 +453,13 @@ const resources = {
         noVariants: 'No variants added yet',
         discard: 'Discard',
         globalUpdate: 'Global Update',
+        categoriesNote: 'Manage product categories and groupings.',
+        handlePlaceholder: 'Handle (e.g. hoodies)',
+        save: 'Save',
+        active: 'Active Status',
+        uploadProof: 'Upload Payment Proof',
+        product: 'Product',
+        category: 'Category',
       },
       // Collections
       collections: {
@@ -383,18 +492,22 @@ const resources = {
         shipping: {
           title: 'Shipping Policy',
           subtitle: 'Free shipping on orders over 2,000 EGP',
+          content: `## General Shipping Information\nWe strive to deliver your order as quickly as possible. All orders are processed within 1-2 business days.\n\n## Delivery Times\n- **Cairo & Giza:** 2-3 business days.\n- **Other Cities:** 3-5 business days.\n- **International:** Currently unavailable.\n\n## Shipping Rates\n- Orders over 2,000 EGP: FREE.\n- Orders below 2,000 EGP: Calculated at checkout based on location.`
         },
         returns: {
           title: 'Returns & Exchanges',
           subtitle: '14-day hassle-free returns',
+          content: `## 14-Day Policy\nYou have 14 days from the date of delivery to return or exchange your items.\n\n## Requirements\n- Items must be unworn, unwashed, and in original packaging.\n- Tags must be attached.\n- Proof of purchase is required.\n\n## How to Return\nContact us via WhatsApp or Email with your order number and reason for return. Our courier will pick up the item within 3-5 business days.`
         },
         privacy: {
           title: 'Privacy Policy',
           subtitle: 'How we protect your data',
+          content: `## Data Protection\nYour privacy is important to us. We only collect data necessary to process your orders.\n\n## Information We Collect\n- Name, Email, and Phone Number.\n- Shipping Address.\n- Payment screenshots (deleted after verification).`
         },
         terms: {
           title: 'Terms of Service',
           subtitle: 'Our terms and conditions',
+          content: `## Terms of Use\nBy using VERO, you agree to our terms.\n\n## Ordering\nAll orders are subject to availability and verification of payment.\n\n## Custom Designs\nCustom designs are unique and created specifically for you. No refunds once production begins.`
         },
       },
     },
@@ -644,10 +757,112 @@ const resources = {
       },
       // Brand Story
       brandStory: {
-        headline: 'قصة فيرو',
+        title: 'قصة فيرو',
         tagline: 'ولدت في مصر. صُنعت للعالم.',
-        manifesto: 'نؤمن أن الفخامة يجب أن تهمس، لا أن تصرخ.',
+        builtForNewWorld: 'صُنعت للعالم الجديد.',
+        headline: 'قصة فيرو',
+        manifesto: {
+          line1: 'نؤمن أن الفخامة يجب أن تهمس، لا أن تصرخ. في عالم من ',
+          loudLogos: 'الشعارات الصاخبة',
+          vs: ' ضد ',
+          quietPower: 'القوة الهادئة',
+          line2: ' فيرو تدعم الأخيرة.',
+        },
         founders: 'أسسها عمر ناصح ومحمد الديب',
+        protocols: {
+          title: 'بروتوكولاتنا',
+          loading: 'النظام_نشط...',
+          zeroCompromise: {
+            title: 'لا تنازل',
+            desc: 'نستخدم أجود أنواع القطن المصري والأقمشة الممتازة. لا اختصارات في الجودة أبداً.'
+          },
+          engineeredFit: {
+            title: 'مقاس مدروس',
+            desc: 'كل تصميم يتم اختباره بدقة للوصول إلى المظهر الأوفرسايز المثالي والراحة القصوى.'
+          },
+          silentLuxury: {
+            title: 'فخامة صامتة',
+            desc: 'علامة تجارية بسيطة تركز على الجودة والتصميم بدلاً من الضجيج.'
+          }
+        },
+        timeline: {
+          title: 'الجدول الزمني',
+          inception: {
+            year: '2023',
+            title: 'البداية',
+            desc: 'ولدت رؤية لتقديم ملابس الشارع الفاخرة في مصر.'
+          },
+          prototype: {
+            year: '2024',
+            title: 'تحسين الحرفة',
+            desc: 'شهور من تجربة الأقمشة وتطوير المقاسات.'
+          },
+          growth: {
+            year: '2025',
+            title: 'المجموعة الأولى',
+            desc: 'إطلاق خط "فيرو الأساسي" لمجتمعنا.'
+          },
+          expansion: {
+            year: '2026',
+            title: 'نحو المستقبل',
+            desc: 'توسيع نطاق وصولنا والاستمرار في إعادة تعريف الفخامة.'
+          }
+        },
+        designLab: 'معمل التصميم',
+      },
+      // Lookbook
+      lookbook: {
+        title: 'دليل أزياء فيرو',
+        tagline: 'رحلة بصرية عبر تقاطع التراث المصري والبساطة الحديثة.',
+        visualDatabase: 'قاعدة البيانات المرئية / المجلد 01',
+        ctaTitle: 'هل أنت جاهز لتحديد أسلوبك؟',
+        ctaSubtitle: 'استكشف أحدث إصداراتنا وابحث عن القطع التي تعبر عن شخصيتك.',
+        ctaButton: 'استكشف المتجر',
+        items: {
+          oversizedSilhouettes: 'تصاميم أوفرسايز',
+          neutralTones: 'ألوان محايدة',
+          premiumTextures: 'أقمشة فاخرة',
+          relaxedFits: 'مقاسات مريحة',
+          log01: 'سجل_01 / دراسة_التصميم',
+          log02: 'سجل_02 / لوحة_الألوان',
+          log03: 'سجل_03 / تفاصيل_القماش',
+          log04: 'سجل_04 / هندسة_الراحة',
+        }
+      },
+      // Contact
+      contact: {
+        title: 'تواصل معنا',
+        subtitle: 'لديك أسئلة؟ رغبة في التعاون؟ أو مجرد إلقاء التحية؟ فريقنا جاهز للرد.',
+        phone: 'الهاتف',
+        email: 'البريد الإلكتروني',
+        methods: {
+          instapay: 'إنستا باي',
+        },
+        hours: 'ساعات العمل',
+        hoursDetail: 'الإثنين - الجمعة: 10:00 صباحاً - 6:00 مساءً',
+      },
+      // FAQ
+      faq: {
+        title: 'الأسئلة الشائعة',
+        tagline: 'كل ما تحتاج لمعرفته عن فيرو.',
+        items: {
+          shipping: {
+            q: 'كم يستغرق الشحن؟',
+            a: 'يستغرق الشحن القياسي في مصر من 3 إلى 5 أيام عمل. الشحن الدولي قادم قريباً.'
+          },
+          payment: {
+            q: 'ما هي طرق الدفع المتاحة؟',
+            a: 'نقبل الدفع عند الاستلام (COD)، المحافظ الإلكترونية (فودافون كاش، إلخ)، وإنستا باي.'
+          },
+          returns: {
+            q: 'ما هي سياسة الإرجاع؟',
+            a: 'نقدم سياسة إرجاع واستبدال لمدة 14 يوماً لجميع القطع بشرط حالتها الأصلية.'
+          },
+          restock: {
+            q: 'هل سيتوفر المنتجات التي نفذت مرة أخرى؟',
+            a: 'إصداراتنا محدودة جداً. بعض الأساسيات قد تتوفر مرة أخرى، لكن الإصدارات الكبرى غالباً ما تظل حصرية.'
+          },
+        }
       },
       // Common
       common: {
@@ -748,6 +963,13 @@ const resources = {
         noVariants: 'لا توجد أنواع مضافة بعد',
         discard: 'تجاهل',
         globalUpdate: 'تحديث الكل',
+        categoriesNote: 'إدارة أقسام المنتجات ومجموعاتها.',
+        handlePlaceholder: 'المعرف (مثال: hoodies)',
+        save: 'حفظ',
+        active: 'الحالة نشطة',
+        uploadProof: 'رفع إثبات الدفع',
+        product: 'المنتج',
+        category: 'القسم',
       },
       // Collections
       collections: {
@@ -780,18 +1002,22 @@ const resources = {
         shipping: {
           title: 'سياسة الشحن',
           subtitle: 'شحن مجاني للطلبات فوق 2,000 ج.م',
+          content: `## معلومات الشحن العامة\nنحن نسعى جاهدين لتوصيل طلبك في أسرع وقت ممكن. تتم معالجة جميع الطلبات في غضون يومي عمل.\n\n## مواعيد التوصيل\n- **القاهرة والجيزة:** 2-3 أيام عمل.\n- **المدن الأخرى:** 3-5 أيام عمل.\n- **دولي:** غير متوفر حالياً.\n\n## أسعار الشحن\n- الطلبات فوق 2,000 ج.م: مجاناً.\n- الطلبات أقل من 2,000 ج.م: تُحسب عند الدفع بناءً على الموقع.`
         },
         returns: {
           title: 'الإرجاع والاستبدال',
           subtitle: 'إرجاع مجاني خلال 14 يوم',
+          content: `## سياسة الـ 14 يوماً\nلديك 14 يوماً من تاريخ التوصيل لإرجاع أو استبدال مشترياتك.\n\n## المتطلبات\n- يجب أن تكون القطع غير مستخدمة، غير مغسولة، وفي العبوة الأصلية.\n- يجب أن تكون الملصقات موجودة.\n- مطلوب إثبات الشراء.\n\n## كيفية الإرجاع\nتواصل معنا عبر الواتساب أو البريد الإلكتروني مع رقم الطلب وسبب الإرجاع. سيقوم المندوب باستلام القطعة خلال 3-5 أيام عمل.`
         },
         privacy: {
           title: 'سياسة الخصوصية',
           subtitle: 'كيف نحمي بياناتك',
+          content: `## حماية البيانات\nخصوصيتك تهمنا. نحن نجمع فقط البيانات اللازمة لمعالجة طلباتك.\n\n## المعلومات التي نجمعها\n- الاسم، البريد الإلكتروني، ورقم الهاتف.\n- عنوان الشحن.\n- لقطات شاشة الدفع (تُحذف بعد التحقق).`
         },
         terms: {
           title: 'شروط الخدمة',
           subtitle: 'الشروط والأحكام',
+          content: `## شروط الاستخدام\nباستخدامك لموقع فيرو، فإنك توافق على شروطنا.\n\n## الطلبات\nتخضع جميع الطلبات للتوافر والتحقق من الدفع.\n\n## التصاميم الخاصة\nالتصاميم الخاصة فريدة ومصممة خصيصاً لك. لا يوجد استرداد بمجرد بدء الإنتاج.`
         },
       },
     },

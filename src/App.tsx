@@ -45,7 +45,7 @@ const AdminFeedbacks = lazy(() => import("@/pages/admin/Feedbacks"));
 const AdminLayout = lazy(() => import("@/components/admin/AdminLayout"));
 
 const AppContent = () => {
-  const { isDarkMode } = useUIStore();
+  const { isDarkMode, language } = useUIStore();
   const { initialize } = useAuthStore();
   const location = useLocation();
   const [isLoading, setIsLoading] = React.useState(true);
@@ -91,6 +91,12 @@ const AppContent = () => {
       document.body.classList.remove('custom-cursor-area');
     }
   }, [isDarkMode, isAdminRoute]);
+
+  // Handle RTL/LTR direction
+  useEffect(() => {
+    document.documentElement.dir = 'ltr';
+    document.documentElement.lang = language;
+  }, [language]);
 
   return (
     <>

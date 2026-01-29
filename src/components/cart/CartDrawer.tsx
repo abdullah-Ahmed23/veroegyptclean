@@ -36,14 +36,13 @@ export function CartDrawer() {
 
           {/* Drawer */}
           <motion.div
-            initial={{ x: language === 'ar' ? '-100%' : '100%' }}
+            initial={{ x: '100%' }}
             animate={{ x: 0 }}
-            exit={{ x: language === 'ar' ? '-100%' : '100%' }}
+            exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className={cn(
               'fixed top-0 bottom-0 w-full max-w-md bg-background z-[210] flex flex-col',
-              language === 'ar' ? 'left-0 border-r' : 'right-0 border-l',
-              'border-border'
+              'right-0 border-l border-border'
             )}
           >
             {/* Header */}
