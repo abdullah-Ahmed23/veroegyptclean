@@ -114,7 +114,7 @@ const resources = {
       },
       // Hero
       hero: {
-        est: 'Est. Cairo 2024',
+        est: 'Est. Cairo 2026',
         tagline: 'Redefining Egyptian luxury with contemporary streetwear aesthetics.',
         cta: 'Shop Collection',
         scroll: 'Scroll',
@@ -152,7 +152,7 @@ const resources = {
         clearFilters: 'Clear All Filters',
         noProducts: 'No products found matching your search.',
         marquee: {
-          newCollection: 'New Collection 2024',
+          newCollection: 'New Collection 2026',
           limitedEdition: 'Limited Edition',
           freeShipping: 'Free Worldwide Shipping',
         },
@@ -242,7 +242,7 @@ const resources = {
         press: 'Press',
         privacy: 'Privacy Policy',
         terms: 'Terms of Service',
-        copyright: '© 2024 VERO. All rights reserved.',
+        copyright: '© 2026 VERO. All rights reserved.',
       },
       // Brand Story
       brandStory: {
@@ -510,7 +510,7 @@ const resources = {
       },
       // Hero
       hero: {
-        est: 'تأسست في القاهرة 2024',
+        est: 'تأسست في القاهرة 2026',
         tagline: 'إعادة تعريف الفخامة المصرية بجماليات أزياء الشارع المعاصرة.',
         cta: 'تسوق المجموعة',
         scroll: 'مرر للأسفل',
@@ -548,7 +548,7 @@ const resources = {
         clearFilters: 'مسح التصفية',
         noProducts: 'لم يتم العثور على منتجات تطابق بحثك.',
         marquee: {
-          newCollection: 'تشكيلة 2024 الجديدة',
+          newCollection: 'تشكيلة 2026 الجديدة',
           limitedEdition: 'إصدار محدود',
           freeShipping: 'شحن مجاني لجميع أنحاء العالم',
         },
@@ -638,7 +638,7 @@ const resources = {
         press: 'الصحافة',
         privacy: 'سياسة الخصوصية',
         terms: 'شروط الخدمة',
-        copyright: '© 2024 فيرو. جميع الحقوق محفوظة.',
+        copyright: '© 2026 فيرو. جميع الحقوق محفوظة.',
       },
       // Brand Story
       brandStory: {
