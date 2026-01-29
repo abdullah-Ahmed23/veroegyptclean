@@ -52,7 +52,7 @@ export const FeedbackSection = () => {
 
     return (
         <section
-            className="pt-32 pb-48 bg-background relative overflow-hidden transition-colors duration-500"
+            className="py-16 md:pt-32 md:pb-48 bg-background relative overflow-hidden transition-colors duration-500"
             onMouseEnter={() => setTriggerAutoHover(false)} // Disable auto-hover once user interacts
         >
             <motion.div
@@ -63,7 +63,7 @@ export const FeedbackSection = () => {
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(212,175,55,0.05),transparent_70%)] opacity-50 dark:opacity-100" />
             </motion.div>
 
-            <div className="container-vero relative z-20 mb-32">
+            <div className="container-vero relative z-20 mb-16 md:mb-32">
                 <div className="flex flex-col md:flex-row justify-between items-end gap-12">
                     <div className="max-w-2xl group/intro">
                         <motion.span
@@ -81,7 +81,7 @@ export const FeedbackSection = () => {
                             initial={{ opacity: 0 }}
                             whileInView={{ opacity: 1 }}
                             viewport={{ once: true }}
-                            className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.85] mb-8 group/title cursor-default"
+                            className="text-4xl sm:text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.85] mb-8 group/title cursor-default"
                         >
                             <span className="block relative overflow-hidden text-black dark:text-white">
                                 <span className={cn(
@@ -129,11 +129,10 @@ export const FeedbackSection = () => {
                 </div>
             </div>
 
-            {/* Carousel Container */}
             <motion.div
                 onViewportEnter={handleViewportEnter}
                 viewport={{ once: true, margin: "-100px" }}
-                className="relative flex flex-col gap-16 md:gap-32 mask-fade-edges py-20 pointer-events-none sm:pointer-events-auto z-10"
+                className="relative flex flex-col gap-12 md:gap-32 mask-fade-edges py-10 md:py-20 z-10"
             >
                 <style dangerouslySetInnerHTML={{
                     __html: `
@@ -219,6 +218,6 @@ export const FeedbackSection = () => {
 
             {/* Submission Form Section */}
             <FeedbackForm />
-        </section>
+        </section >
     );
 };

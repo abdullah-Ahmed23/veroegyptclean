@@ -52,6 +52,7 @@ export default function Checkout() {
         e.preventDefault();
         if (step < 3) {
             setStep(step + 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
 
@@ -375,7 +376,28 @@ export default function Checkout() {
                                                             : (isDarkMode ? "border-white/10 hover:border-white/20" : "border-black/10 hover:border-black/20")
                                                     )}>
                                                         <div className="flex items-center gap-4">
-                                                            <input type="radio" name="payment" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} className={isDarkMode ? "accent-white" : "accent-black"} />
+                                                            <div className="relative flex items-center justify-center">
+                                                                <input
+                                                                    type="radio"
+                                                                    name="payment"
+                                                                    checked={paymentMethod === 'cod'}
+                                                                    onChange={() => setPaymentMethod('cod')}
+                                                                    className="sr-only"
+                                                                />
+                                                                <div className={cn(
+                                                                    "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
+                                                                    paymentMethod === 'cod'
+                                                                        ? (isDarkMode ? "border-white" : "border-black")
+                                                                        : (isDarkMode ? "border-white/20" : "border-black/20")
+                                                                )}>
+                                                                    {paymentMethod === 'cod' && (
+                                                                        <motion.div
+                                                                            layoutId="active-radio-dot"
+                                                                            className={cn("w-2.5 h-2.5 rounded-full", isDarkMode ? "bg-white" : "bg-black")}
+                                                                        />
+                                                                    )}
+                                                                </div>
+                                                            </div>
                                                             <div className="space-y-1">
                                                                 <span className="font-bold uppercase tracking-widest text-sm">{t('checkout.cod')}</span>
                                                                 <p className={cn("text-xs", isDarkMode ? "text-zinc-500" : "text-zinc-400")}>{t('checkout.codNote')}</p>
@@ -391,7 +413,28 @@ export default function Checkout() {
                                                             : (isDarkMode ? "border-white/10 hover:border-white/20" : "border-black/10 hover:border-black/20")
                                                     )}>
                                                         <div className="flex items-center gap-4">
-                                                            <input type="radio" name="payment" checked={paymentMethod === 'wallet'} onChange={() => setPaymentMethod('wallet')} className={isDarkMode ? "accent-white" : "accent-black"} />
+                                                            <div className="relative flex items-center justify-center">
+                                                                <input
+                                                                    type="radio"
+                                                                    name="payment"
+                                                                    checked={paymentMethod === 'wallet'}
+                                                                    onChange={() => setPaymentMethod('wallet')}
+                                                                    className="sr-only"
+                                                                />
+                                                                <div className={cn(
+                                                                    "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
+                                                                    paymentMethod === 'wallet'
+                                                                        ? (isDarkMode ? "border-white" : "border-black")
+                                                                        : (isDarkMode ? "border-white/20" : "border-black/20")
+                                                                )}>
+                                                                    {paymentMethod === 'wallet' && (
+                                                                        <motion.div
+                                                                            layoutId="active-radio-dot"
+                                                                            className={cn("w-2.5 h-2.5 rounded-full", isDarkMode ? "bg-white" : "bg-black")}
+                                                                        />
+                                                                    )}
+                                                                </div>
+                                                            </div>
                                                             <div className="space-y-1">
                                                                 <span className="font-bold uppercase tracking-widest text-sm">{t('checkout.wallet')}</span>
                                                                 <p className={cn("text-xs", isDarkMode ? "text-zinc-500" : "text-zinc-400")}>{t('checkout.walletNote')}</p>
@@ -407,7 +450,28 @@ export default function Checkout() {
                                                             : (isDarkMode ? "border-white/10 hover:border-white/20" : "border-black/10 hover:border-black/20")
                                                     )}>
                                                         <div className="flex items-center gap-4">
-                                                            <input type="radio" name="payment" checked={paymentMethod === 'instapay'} onChange={() => setPaymentMethod('instapay')} className={isDarkMode ? "accent-white" : "accent-black"} />
+                                                            <div className="relative flex items-center justify-center">
+                                                                <input
+                                                                    type="radio"
+                                                                    name="payment"
+                                                                    checked={paymentMethod === 'instapay'}
+                                                                    onChange={() => setPaymentMethod('instapay')}
+                                                                    className="sr-only"
+                                                                />
+                                                                <div className={cn(
+                                                                    "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
+                                                                    paymentMethod === 'instapay'
+                                                                        ? (isDarkMode ? "border-white" : "border-black")
+                                                                        : (isDarkMode ? "border-white/20" : "border-black/20")
+                                                                )}>
+                                                                    {paymentMethod === 'instapay' && (
+                                                                        <motion.div
+                                                                            layoutId="active-radio-dot"
+                                                                            className={cn("w-2.5 h-2.5 rounded-full", isDarkMode ? "bg-white" : "bg-black")}
+                                                                        />
+                                                                    )}
+                                                                </div>
+                                                            </div>
                                                             <div className="space-y-1">
                                                                 <span className="font-bold uppercase tracking-widest text-sm">{t('checkout.instapay')}</span>
                                                                 <p className={cn("text-xs", isDarkMode ? "text-zinc-500" : "text-zinc-400")}>{t('checkout.instapayNote')}</p>

@@ -44,7 +44,7 @@ export const FeedbackForm = () => {
     };
 
     return (
-        <section className="py-32 bg-accent/5 border-t border-border relative overflow-hidden transition-colors duration-500">
+        <div className="py-16 md:py-32 bg-accent/5 border-t border-border relative overflow-hidden transition-colors duration-500">
             <div className="container-vero max-w-2xl mx-auto px-6 text-center relative z-10">
                 <AnimatePresence mode="wait">
                     {!isSuccess ? (
@@ -57,7 +57,7 @@ export const FeedbackForm = () => {
                             <span className="inline-block text-vero-gold text-[10px] font-black uppercase tracking-[0.5em] mb-6">
                                 {t('home.feedback.form.subtitle')}
                             </span>
-                            <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-foreground mb-16 leading-none">
+                            <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-foreground mb-8 md:mb-16 leading-none">
                                 {t('home.feedback.form.title')}
                             </h2>
 
@@ -86,7 +86,7 @@ export const FeedbackForm = () => {
                                                     type="button"
                                                     onClick={() => setRating(star)}
                                                     className={cn(
-                                                        "p-2 transition-colors duration-200",
+                                                        "p-4 transition-colors duration-200 -m-2",
                                                         rating >= star ? 'text-vero-gold' : 'text-muted/20'
                                                     )}
                                                 >
@@ -159,6 +159,6 @@ export const FeedbackForm = () => {
                     )}
                 </AnimatePresence>
             </div>
-        </section>
+        </div>
     );
 };

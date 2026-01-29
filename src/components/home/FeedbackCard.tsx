@@ -15,9 +15,9 @@ export const FeedbackCard = ({ name, title, rating, comment, className }: Feedba
         <motion.div
             whileHover={{ y: -8 }}
             className={cn(
-                "relative p-8 rounded-[1.5rem] border border-border bg-card transition-all duration-300",
+                "relative p-6 md:p-8 rounded-[1.5rem] border border-border bg-card transition-all duration-300",
                 "hover:border-[#49d77e]/40 hover:bg-foreground/5",
-                "w-[350px] md:w-[450px] flex-shrink-0 group overflow-hidden",
+                "w-[280px] sm:w-[350px] md:w-[450px] flex-shrink-0 group overflow-hidden",
                 className
             )}
         >
