@@ -61,6 +61,14 @@ export default function AdminProducts() {
     const { language } = useUIStore();
     const { t } = useTranslation();
 
+    const slugify = (text: string) => {
+        return text
+            .toLowerCase()
+            .replace(/[^\w\s-]/g, '') // Remove special chars
+            .replace(/[\s_]+/g, '-')     // Replace spaces/underscores with -
+            .replace(/^-+|-+$/g, '');    // Trim - from ends
+    };
+
     const fetchInitialData = async () => {
         setLoading(true);
         try {
@@ -84,6 +92,16 @@ export default function AdminProducts() {
     useEffect(() => {
         fetchInitialData();
     }, []);
+
+    // Auto-generate handle from Title EN if empty
+    useEffect(() => {
+        if (isFormOpen && !editingProduct?.id && editingProduct?.title_en && !editingProduct?.handle) {
+            setEditingProduct(prev => ({
+                ...prev,
+                handle: slugify(editingProduct.title_en || '')
+            }));
+        }
+    }, [editingProduct?.title_en]);
 
     const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -167,11 +185,11 @@ export default function AdminProducts() {
 
         try {
             const productData = {
-                handle: editingProduct?.handle,
-                title_en: editingProduct?.title_en,
-                title_ar: editingProduct?.title_ar,
-                description_en: editingProduct?.description_en,
-                description_ar: editingProduct?.description_ar || '',
+                handle: slugify(editingProduct?.handle || ''),
+                title_en: editingProduct?.title_en?.trim(),
+                title_ar: editingProduct?.title_ar?.trim(),
+                description_en: editingProduct?.description_en?.trim(),
+                description_ar: editingProduct?.description_ar?.trim() || '',
                 category_id: editingProduct?.category_id || null,
                 collection_id: editingProduct?.collection_id || null,
                 images: editingProduct?.images || [],
@@ -192,7 +210,9 @@ export default function AdminProducts() {
             }
 
             if (productRes.error) throw productRes.error;
-            if (!prodId) prodId = productRes.data[0].id;
+            if (!prodId && productRes.data?.[0]) prodId = productRes.data[0].id;
+
+            if (!prodId) throw new Error("Failed to retrieve product ID after save");
 
             // Handle Variants Sync
             if (editingProduct?.product_variants) {
@@ -420,12 +440,23 @@ export default function AdminProducts() {
                                                 setIsFormOpen(true);
                                             }}
                                             className="p-2 text-zinc-500 hover:text-white transition-colors"
+                                            title={t('admin.editProduct')}
                                         >
                                             <Edit2 className="h-4 w-4" />
                                         </button>
+                                        <a
+                                            href={`/product/${product.handle}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-block p-2 text-zinc-500 hover:text-vero-gold transition-colors"
+                                            title={t('admin.viewOnStore')}
+                                        >
+                                            <Search className="h-4 w-4" />
+                                        </a>
                                         <button
                                             onClick={() => handleDelete(product.id)}
                                             className="p-2 text-zinc-500 hover:text-red-500 transition-colors"
+                                            title={t('admin.delete')}
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </button>
@@ -525,7 +556,7 @@ export default function AdminProducts() {
                                                 required
                                                 placeholder="e.g. cloud-heavyweight-hoodie"
                                                 value={editingProduct?.handle}
-                                                onChange={e => setEditingProduct({ ...editingProduct, handle: e.target.value })}
+                                                onChange={e => setEditingProduct({ ...editingProduct, handle: slugify(e.target.value) })}
                                                 className="w-full bg-black border border-white/10 p-3 text-sm focus:outline-none focus:border-vero-gold transition-colors"
                                             />
                                         </div>

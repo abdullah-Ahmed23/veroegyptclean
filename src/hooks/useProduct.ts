@@ -20,7 +20,7 @@ export const useProduct = (handle: string | undefined) => {
           collections (handle, title_en, title_ar),
           product_variants (*)
         `)
-                .eq('handle', handle)
+                .ilike('handle', handle)
                 .single();
 
             if (error) {

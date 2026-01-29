@@ -18,6 +18,7 @@ export const FeedbackCard = ({ name, title, rating, comment, className }: Feedba
                 "relative p-6 md:p-8 rounded-[1.5rem] border border-border bg-card transition-all duration-300",
                 "hover:border-[#49d77e]/40 hover:bg-foreground/5",
                 "w-[280px] sm:w-[350px] md:w-[450px] flex-shrink-0 group overflow-hidden",
+                "min-h-[250px] md:min-h-[300px] flex flex-col justify-between",
                 className
             )}
         >
@@ -39,7 +40,7 @@ export const FeedbackCard = ({ name, title, rating, comment, className }: Feedba
                     ))}
                 </div>
 
-                <div className="relative">
+                <div className="relative flex-grow">
                     {/* Theme-aware Text */}
                     <p className="text-muted-foreground font-light italic leading-relaxed text-base md:text-lg group-hover:text-foreground transition-colors duration-300">
                         "{comment}"

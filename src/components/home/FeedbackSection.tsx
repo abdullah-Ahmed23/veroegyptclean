@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 import { FeedbackCard } from './FeedbackCard';
 import { FeedbackForm } from './FeedbackForm';
-import { Star } from 'lucide-react';
+import { Star, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
@@ -14,6 +14,7 @@ export const FeedbackSection = () => {
 
     const [hasEntered, setHasEntered] = useState(false);
     const [isSettled, setIsSettled] = useState(false);
+    const [currentSlide, setCurrentSlide] = useState(0);
 
     useEffect(() => {
         const fetchApprovedFeedbacks = async () => {
@@ -111,46 +112,52 @@ export const FeedbackSection = () => {
                         </motion.p>
                     </div>
 
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        viewport={{ once: true }}
-                        className="flex items-center gap-8 pb-4"
-                    >
-                        <div className="text-right">
-                            <div className="text-3xl font-black text-foreground leading-none mb-1">4.9<span className="text-vero-gold text-lg">/5</span></div>
-                            <div className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground font-bold">{t('home.feedback.averageRating')}</div>
+                    <div className="flex flex-col items-end gap-6 pb-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            whileInView={{ opacity: 1 }}
+                            viewport={{ once: true }}
+                            className="flex items-center gap-8"
+                        >
+                            <div className="text-right">
+                                <div className="text-3xl font-black text-foreground leading-none mb-1">4.9<span className="text-vero-gold text-lg">/5</span></div>
+                                <div className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground font-bold">{t('home.feedback.averageRating')}</div>
+                            </div>
+                            <div className="h-10 w-[1px] bg-border" />
+                            <div className="flex gap-1 text-vero-gold">
+                                {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
+                            </div>
+                        </motion.div>
+
+                        {/* Slider Controls for Mobile/Tablet */}
+                        <div className="flex md:hidden items-center gap-4">
+                            <button
+                                onClick={() => setCurrentSlide(prev => Math.max(0, prev - 1))}
+                                disabled={currentSlide === 0}
+                                className={cn(
+                                    "p-4 rounded-full border border-border transition-all duration-300 active:scale-95",
+                                    currentSlide === 0 ? "opacity-30 cursor-not-allowed" : "hover:border-[#49d77e] hover:text-[#49d77e]"
+                                )}
+                            >
+                                <ArrowLeft size={20} />
+                            </button>
+                            <button
+                                onClick={() => setCurrentSlide(prev => Math.min(feedbacks.length - 1, prev + 1))}
+                                disabled={currentSlide === feedbacks.length - 1}
+                                className={cn(
+                                    "p-4 rounded-full border border-border transition-all duration-300 active:scale-95",
+                                    currentSlide === feedbacks.length - 1 ? "opacity-30 cursor-not-allowed" : "hover:border-[#49d77e] hover:text-[#49d77e]"
+                                )}
+                            >
+                                <ArrowRight size={20} />
+                            </button>
                         </div>
-                        <div className="h-10 w-[1px] bg-border" />
-                        <div className="flex gap-1 text-vero-gold">
-                            {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
-                        </div>
-                    </motion.div>
+                    </div>
                 </div>
             </div>
 
-            <motion.div
-                onViewportEnter={handleViewportEnter}
-                viewport={{ once: true, margin: "-100px" }}
-                className="relative flex flex-col gap-12 md:gap-32 mask-fade-edges py-10 md:py-20 z-10"
-            >
-                <style dangerouslySetInnerHTML={{
-                    __html: `
-                    @keyframes feedback-entrance {
-                        0% { 
-                            opacity: 0;
-                            transform: translateY(20px);
-                        }
-                        100% { 
-                            opacity: 1;
-                            transform: translateY(0);
-                        }
-                    }
-                    .entrance-active {
-                        animation: feedback-entrance 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-                    }
-                `}} />
-
+            {/* Desktop Marquee Layout */}
+            <div className="hidden md:flex flex-col gap-16 md:gap-32 mask-fade-edges py-20 pointer-events-none sm:pointer-events-auto z-10">
                 {/* Row 1 */}
                 <div className="flex overflow-hidden grayscale hover:grayscale-0 transition-all duration-700">
                     <motion.div
@@ -214,7 +221,55 @@ export const FeedbackSection = () => {
                         ))}
                     </motion.div>
                 </div>
-            </motion.div>
+            </div>
+
+            {/* Mobile/Tablet Slider Layout */}
+            <div className="md:hidden relative z-10">
+                <div className="px-6 overflow-hidden">
+                    <motion.div
+                        animate={{ x: `-${currentSlide * 100}%` }}
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        className="flex"
+                    >
+                        {feedbacks.map((item) => (
+                            <div key={item.id} className="w-full px-4 flex-shrink-0">
+                                <FeedbackCard
+                                    name={item.customer_name}
+                                    title={item.customer_title}
+                                    rating={item.rating}
+                                    comment={item.comment}
+                                    className="w-full"
+                                />
+                            </div>
+                        ))}
+                    </motion.div>
+                </div>
+
+                {/* Mobile Indicators & Add Feedback Button */}
+                <div className="flex items-center justify-between mt-8 px-6">
+                    <div className="flex gap-2">
+                        {feedbacks.map((_, i) => (
+                            <div
+                                key={i}
+                                className={cn(
+                                    "h-1 rounded-full transition-all duration-300",
+                                    currentSlide === i ? "w-8 bg-[#49d77e]" : "w-2 bg-border"
+                                )}
+                            />
+                        ))}
+                    </div>
+
+                    <button
+                        onClick={() => {
+                            const formElement = document.getElementById('feedback-form');
+                            formElement?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        className="text-[10px] font-black uppercase tracking-widest text-[#49d77e] border-b border-[#49d77e] pb-0.5"
+                    >
+                        {t('common.leaveFeedback')}
+                    </button>
+                </div>
+            </div>
 
             {/* Submission Form Section */}
             <FeedbackForm />
