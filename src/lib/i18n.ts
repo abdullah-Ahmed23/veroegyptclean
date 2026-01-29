@@ -136,6 +136,7 @@ const resources = {
         soldOut: 'Sold Out',
         combinationUnavailable: 'This combination is unavailable',
         selectOptions: 'Select Options',
+        selectRating: 'Select Rating',
       },
       // Shipping & Returns Policies (new)
       shipping: {
@@ -532,6 +533,7 @@ const resources = {
         soldOut: 'نفذت الكمية',
         combinationUnavailable: 'هذا المزيج غير متوفر',
         selectOptions: 'اختر المزايا',
+        selectRating: 'اختر التقييم',
       },
       // Shipping & Returns Policies (new)
       shipping: {
