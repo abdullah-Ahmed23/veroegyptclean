@@ -1,26 +1,32 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Search, X, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useUIStore } from '@/lib/store';
-import { searchProducts, products } from '@/data/products';
+import { useUIStore, formatPrice } from '@/lib/store';
 import { cn } from '@/lib/utils';
-import { formatPrice } from '@/lib/store';
+import { useProducts } from '@/hooks/useProducts';
 
 export function SearchModal() {
   const { t } = useTranslation();
   const { isSearchOpen, setIsSearchOpen, language } = useUIStore();
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState(products.slice(0, 4));
+
+  const { products: allProducts } = useProducts();
+
+  const results = useMemo(() => {
+    if (!query.trim()) return allProducts.slice(0, 4);
+
+    const lowerQuery = query.toLowerCase();
+    return allProducts.filter(p =>
+      p.title.toLowerCase().includes(lowerQuery) ||
+      p.description.toLowerCase().includes(lowerQuery) ||
+      p.tags.some(t => t.toLowerCase().includes(lowerQuery))
+    );
+  }, [allProducts, query]);
 
   const handleSearch = useCallback((value: string) => {
     setQuery(value);
-    if (value.trim()) {
-      setResults(searchProducts(value));
-    } else {
-      setResults(products.slice(0, 4));
-    }
   }, []);
 
   useEffect(() => {
@@ -47,7 +53,7 @@ export function SearchModal() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-background/90 backdrop-blur-md z-50"
+            className="fixed inset-0 bg-background/90 backdrop-blur-md z-[200]"
             onClick={() => setIsSearchOpen(false)}
           />
 
@@ -57,7 +63,7 @@ export function SearchModal() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -50 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed top-0 left-0 right-0 z-50 p-4 sm:p-8"
+            className="fixed top-0 left-0 right-0 z-[210] p-4 sm:p-8"
           >
             <div className="max-w-2xl mx-auto bg-card border border-border rounded-sm overflow-hidden">
               {/* Search Input */}

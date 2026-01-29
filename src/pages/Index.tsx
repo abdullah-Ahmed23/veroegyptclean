@@ -2,14 +2,15 @@ import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, ArrowDown } from 'lucide-react';
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useUIStore } from '@/lib/store';
 import { ProductCard } from '@/components/product/ProductCard';
 import { Hero } from "@/components/home/Hero";
-import { GlitchCard } from '@/components/home/GlitchCard';
-
-import { products } from '@/data/products';
+import { ScrollingCarousel } from '@/components/home/ScrollingCarousel';
+import { FeedbackSection } from '@/components/home/FeedbackSection';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { cn } from '@/lib/utils';
+import { useProducts } from '@/hooks/useProducts';
 
 // Import images
 import heroImage from '@/assets/hero-1.jpg';
@@ -20,17 +21,6 @@ import productSweatpants2 from '@/assets/product-sweatpants-2.jpg';
 import heroImage3 from '@/assets/hero-3.png';
 import lookbook1 from '@/assets/lookbook-1.jpg';
 
-// Update product images with actual images
-const productsWithImages = products.map((product, index) => ({
-  ...product,
-  images: [
-    index % 2 === 0 ? productHoodie1 : productSweatpants1,
-    index % 2 === 0 ? productHoodie2 : productSweatpants2,
-    lookbook1, // Keep lookbook1 for product images if needed, or replace if that was the intent. 
-    // User specifically pointed to the SECTION background.
-  ],
-}));
-
 const Index = () => {
   const { t } = useTranslation();
   const { language } = useUIStore();
@@ -39,6 +29,8 @@ const Index = () => {
     target: heroRef,
     offset: ['start start', 'end start'],
   });
+
+  const { products: allProducts, loading } = useProducts();
 
   const heroImageY = useTransform(scrollYProgress, [0, 1], [0, 150]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
@@ -65,8 +57,13 @@ const Index = () => {
     mouseY.set(y);
   };
 
-  const newArrivals = productsWithImages.filter(p => p.collection === 'new-arrivals').slice(0, 3); // 3 items for bigger cards
-  const essentials = productsWithImages.filter(p => p.collection === 'essentials').slice(0, 4);
+  const newArrivals = useMemo(() =>
+    allProducts.filter(p => p.isNew || p.collection === 'new-arrivals').slice(0, 3)
+    , [allProducts]);
+
+  const essentials = useMemo(() =>
+    allProducts.filter(p => p.collection === 'essentials').slice(0, 4)
+    , [allProducts]);
 
   return (
     <div className="overflow-hidden bg-background">
@@ -83,119 +80,158 @@ const Index = () => {
         >
           {[...Array(10)].map((_, i) => (
             <span key={i} className="text-sm md:text-base font-bold uppercase tracking-[0.3em] flex items-center gap-12">
-              FREE SHIPPING ON ORDERS OVER 2,000 EGP <span className="w-1.5 h-1.5 rounded-full bg-background" />
-              PREMIUM QUALITY <span className="w-1.5 h-1.5 rounded-full bg-background" />
-              MADE IN EGYPT <span className="w-1.5 h-1.5 rounded-full bg-background" />
+              {t('home.marquee.freeShipping')} <span className="w-1.5 h-1.5 rounded-full bg-background" />
+              {t('home.marquee.premiumQuality')} <span className="w-1.5 h-1.5 rounded-full bg-background" />
+              {t('home.marquee.madeInEgypt')} <span className="w-1.5 h-1.5 rounded-full bg-background" />
             </span>
           ))}
         </motion.div>
       </section>
 
-      {/* New Arrivals -> FRESH DROPS */}
-      <section id="fresh-drops" className="section-padding bg-background relative overflow-hidden min-h-[80vh] flex flex-col justify-center">
-        {/* Background decorative element - Ticker */}
-        <div className="absolute top-0 left-0 w-full overflow-hidden opacity-[0.03] select-none pointer-events-none">
+      {/* Fresh Drops - Editorial Gallery Layout */}
+      <section id="fresh-drops" className="relative min-h-screen bg-background py-32 overflow-hidden">
+        {/* Background Parallax Content */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
           <motion.div
-            animate={{ x: ["0%", "-50%"] }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="flex whitespace-nowrap"
+            style={{
+              y: useTransform(scrollYProgress, [0.1, 0.4], [0, -200]),
+              opacity: useTransform(scrollYProgress, [0.1, 0.2, 0.35], [0, 0.05, 0])
+            }}
+            className="absolute top-20 left-10 flex flex-col gap-0 select-none whitespace-nowrap"
           >
-            <span className="text-[15rem] font-black leading-none text-foreground tracking-tighter">
-              FRESH DROPS — FRESH DROPS — FRESH DROPS —
-            </span>
+            <span className="text-[25rem] font-black leading-[0.8] text-foreground/[0.03] dark:text-white tracking-tighter">{t('home.drops.bgNew')}</span>
+            <span className="text-[25rem] font-black leading-[0.8] text-foreground/[0.03] dark:text-white tracking-tighter ml-48">{t('home.drops.bgDrops')}</span>
           </motion.div>
+
+          {/* Subtle noise texture */}
+          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")` }} />
         </div>
 
-        <div className="w-full px-4 md:px-10 relative z-10">
-          <div className="flex flex-col mb-16 gap-8">
-            {/* Header Layout: Centered Symmetrical */}
-            <div className="relative flex flex-col items-center justify-center border-b border-foreground/10 pb-12 gap-8 text-center">
-
-              {/* Available Now - Top */}
+        <div className="container-vero relative z-10 px-4 md:px-10">
+          {/* Section Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-8">
+            <div className="max-w-2xl">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                className="flex items-center gap-2"
+                className="flex items-center gap-3 mb-6"
               >
-                <span className="w-2 h-2 bg-[#4ade80] rounded-full animate-pulse shadow-[0_0_10px_#4ade80]" />
-                <p className="text-xs font-bold uppercase tracking-[0.3em] text-foreground/60">
-                  Available Now
-                </p>
+                <span className="w-12 h-[1px] bg-red-500" />
+                <span className="text-xs font-bold uppercase tracking-[0.4em] text-red-500">{t('home.drops.seasonalRelease')}</span>
               </motion.div>
 
-              {/* Title - Center */}
               <motion.h2
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="heading-display text-6xl md:text-8xl lg:text-9xl text-foreground leading-none tracking-tighter"
+                className="text-6xl md:text-8xl lg:text-9xl text-foreground font-black leading-[0.9] tracking-tighter uppercase"
               >
-                FRESH DROPS
+                {t('home.drops.title')} <br /> <span className="text-outline-foreground dark:text-outline-white text-transparent">{t('home.drops.titleOutline')}</span>
               </motion.h2>
-
-              {/* View All - Bottom */}
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-              >
-                <Link
-                  to="/collections/new-arrivals"
-                  className="group inline-flex items-center gap-4 text-sm font-bold uppercase tracking-widest bg-foreground text-background px-10 py-4 hover:bg-foreground/90 transition-all hover:scale-105 shadow-xl"
-                >
-                  View All
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </motion.div>
             </div>
-          </div>
 
-          {/* Horizontal Scroll Showcase */}
-          <motion.div
-            initial={{ opacity: 0, x: 100 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-12 -mx-4 md:-mx-10 px-4 md:px-10"
-          >
-            {newArrivals.map((product, index) => (
-              <motion.div
-                key={product.id}
-                className="flex-none w-[85vw] md:w-[450px] snap-center"
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <ProductCard product={product} index={index} />
-              </motion.div>
-            ))}
-
-            {/* View More Card at the end */}
             <motion.div
-              className="flex-none w-[85vw] md:w-[300px] snap-center flex items-center justify-center bg-foreground/5"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="flex items-center gap-8"
             >
-              <Link to="/collections/new-arrivals" className="group flex flex-col items-center gap-4 text-center p-8">
-                <span className="w-16 h-16 rounded-full border border-foreground/20 flex items-center justify-center group-hover:bg-foreground group-hover:text-background transition-all duration-300">
-                  <ArrowRight className="w-6 h-6" />
-                </span>
-                <span className="text-xl font-bold uppercase tracking-widest">View All<br />Drops</span>
+              <div className="hidden md:block text-right">
+                <p className="text-foreground/40 text-xs font-bold uppercase tracking-widest mb-2">{t('home.drops.curatedSelection')}</p>
+                <p className="text-foreground/60 text-sm max-w-[200px]">{t('home.drops.curatedDescription')}</p>
+              </div>
+              <Link
+                to="/collections/new-arrivals"
+                className="group flex flex-col items-center justify-center w-24 h-24 rounded-full border border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-all duration-500"
+              >
+                <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform mb-1" />
+                <span className="text-[10px] font-bold uppercase tracking-tighter">{t('home.drops.viewAll')}</span>
               </Link>
             </motion.div>
-          </motion.div>
+          </div>
+
+          {/* Staggered Grid Showcase */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-y-24 md:gap-y-0 md:gap-x-12">
+            {/* Item 1 - Large, Left */}
+            <motion.div
+              initial={{ opacity: 0, y: 100 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="md:col-span-7"
+            >
+              <div className="group relative">
+                {newArrivals[0] && <ProductCard product={newArrivals[0]} index={0} />}
+                <div className="absolute -bottom-10 -right-6 md:-right-12 z-20 pointer-events-none hidden md:block">
+                  <span className="text-8xl font-black text-foreground/5 dark:text-white/5 tracking-tighter">01</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Item 2 - Smaller, Right, Offset */}
+            <motion.div
+              initial={{ opacity: 0, y: 150 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+              className="md:col-span-5 md:mt-48"
+            >
+              <div className="group relative max-w-[400px] mx-auto md:mr-0">
+                {newArrivals[1] && <ProductCard product={newArrivals[1]} index={1} />}
+                <div className="absolute -top-10 -left-6 md:-left-12 z-20 pointer-events-none hidden md:block">
+                  <span className="text-8xl font-black text-foreground/5 dark:text-white/5 tracking-tighter">02</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Item 3 - Center Right, Large */}
+            <motion.div
+              initial={{ opacity: 0, y: 100 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+              className="md:col-span-6 md:col-start-4 md:mt-24"
+            >
+              <div className="group relative">
+                {newArrivals[2] && <ProductCard product={newArrivals[2]} index={2} />}
+                <div className="absolute -bottom-10 -left-6 md:-left-12 z-20 pointer-events-none hidden md:block">
+                  <span className="text-8xl font-black text-white/5 tracking-tighter">03</span>
+                </div>
+              </div>
+
+              {/* View More Inline */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.6 }}
+                className="mt-20 flex flex-col items-center justify-center text-center px-4"
+              >
+                <div className="w-[1px] h-32 bg-gradient-to-b from-white/0 via-white/20 to-white/0 mb-12" />
+                <p className="text-[#e8ba30] text-xs font-bold uppercase tracking-[0.5em] mb-8">{t('home.drops.endOfPreview')}</p>
+                <Link
+                  to="/collections/new-arrivals"
+                  className="group relative px-12 py-5 bg-foreground text-background font-black uppercase tracking-widest text-xs hover:bg-background hover:text-foreground border border-foreground transition-all duration-300 overflow-hidden"
+                >
+                  <span className="relative z-10 flex items-center gap-4">
+                    {t('home.drops.exploreFullDrop')}
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                  <div className="absolute inset-x-0 bottom-0 h-0 bg-background dark:bg-black group-hover:h-full transition-all duration-300 -z-0" />
+                </Link>
+              </motion.div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Featured Collection Banner - Bigger Impact */}
       {/* Featured Collection Banner - Bigger Impact */}
       <section
-        className="relative h-screen flex items-center overflow-hidden bg-black perspective-1000"
+        className="relative h-screen flex items-center overflow-hidden bg-background perspective-1000"
         onMouseMove={handleMouseMove}
       >
         {/* Parallax Background Group */}
@@ -209,7 +245,7 @@ const Index = () => {
             className="h-full w-full relative"
           >
             {/* Main Image */}
-            <img
+            <OptimizedImage
               src={heroImage3}
               alt="Essentials Collection"
               className="w-full h-full object-cover opacity-90"
@@ -232,7 +268,7 @@ const Index = () => {
             >
               {/* Use the same image but tinted or filtered */}
               <div className="w-full h-full bg-red-500/50 absolute inset-0 mix-blend-multiply" />
-              <img
+              <OptimizedImage
                 src={heroImage3}
                 alt=""
                 className="w-full h-full object-cover"
@@ -256,7 +292,7 @@ const Index = () => {
               className="absolute inset-0 mix-blend-screen opacity-0"
             >
               <div className="w-full h-full bg-cyan-500/50 absolute inset-0 mix-blend-multiply" />
-              <img
+              <OptimizedImage
                 src={heroImage3}
                 alt=""
                 className="w-full h-full object-cover"
@@ -295,7 +331,7 @@ const Index = () => {
             >
               <span className="w-12 h-[2px] bg-red-500" />
               <p className="text-white/90 text-sm font-bold uppercase tracking-[0.5em] glow-text">
-                The Foundation
+                {t('home.essentials.tagline')}
               </p>
             </motion.div>
 
@@ -307,9 +343,9 @@ const Index = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8 }}
-                className="heading-display text-5xl sm:text-7xl md:text-[9rem] lg:text-[11rem] leading-[0.85] text-white tracking-tighter mix-blend-difference relative z-10"
+                className="heading-display text-5xl sm:text-7xl md:text-[9rem] lg:text-[11rem] leading-[0.85] text-foreground tracking-tighter mix-blend-difference relative z-10"
               >
-                ESSENTIALS
+                {t('home.essentials.title')}
               </motion.h2>
 
               {/* Text Glitch Overlay - Red */}
@@ -333,7 +369,7 @@ const Index = () => {
                   ease: "linear"
                 }}
               >
-                ESSENTIALS
+                {t('home.essentials.title')}
               </motion.h2>
 
               {/* Text Glitch Overlay - Cyan */}
@@ -357,7 +393,7 @@ const Index = () => {
                   ease: "linear"
                 }}
               >
-                ESSENTIALS
+                {t('home.essentials.title')}
               </motion.h2>
             </div>
 
@@ -366,10 +402,9 @@ const Index = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="text-xl md:text-2xl text-white/80 font-light mb-12 max-w-xl leading-relaxed mx-auto md:mx-0 mix-blend-screen"
+              className="text-xl md:text-2xl text-white dark:text-white/80 font-light mb-12 max-w-xl leading-relaxed mx-auto md:mx-0 mix-blend-screen"
             >
-              Timeless pieces designed to anchor your wardrobe. <span className="text-white font-medium">Premium fabrics</span>,
-              considered details, enduring style.
+              {t('home.essentials.description')}
             </motion.p>
 
             <motion.div
@@ -379,76 +414,27 @@ const Index = () => {
               transition={{ delay: 0.3 }}
               className="flex justify-center md:justify-start"
             >
-              <Link to="/collections/essentials" className="group relative bg-white text-black px-12 py-6 uppercase tracking-widest font-bold text-sm overflow-hidden hover:text-white transition-colors duration-300">
+              <Link to="/collections/essentials" className="group relative bg-foreground text-background px-12 py-6 uppercase tracking-widest font-bold text-sm overflow-hidden hover:text-foreground transition-colors duration-300">
                 <span className="relative z-10 flex items-center gap-4">
-                  Explore Collection
+                  {t('home.essentials.exploreCollection')}
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </span>
-                <div className="absolute inset-0 bg-black translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+                <div className="absolute inset-0 bg-background translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
               </Link>
             </motion.div>
           </div>
         </motion.div>
       </section>
 
-      {/* Essentials Grid */}
-      <section className="section-padding bg-zinc-50 dark:bg-zinc-900/50">
-        <div className="container-vero">
-          <div className="text-center mb-16">
-            <h2 className="heading-2 uppercase tracking-tight">Essential Base Layers</h2>
-            <p className="text-muted-foreground mt-4 max-w-lg mx-auto">
-              Curated foundations for your everyday rotation.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 h-auto md:h-[800px]">
-            {/* Item 1: Oversized Hoodies (Big Square 2x2) */}
-            <GlitchCard
-              className="md:col-span-2 md:row-span-2"
-              image={productHoodie1}
-              title="Oversized Hoodies"
-              subtitle="Heavyweight cotton blended for the perfect drape. The ultimate everyday essential."
-              link="/collections/hoodies"
-              tag="Signature Fit"
-            />
-
-            {/* Item 2: Sweatpants (Tall 1x2) */}
-            <GlitchCard
-              className="md:col-span-1 md:row-span-2"
-              image={productSweatpants1}
-              title="Sweatpants"
-              subtitle="Tailored comfort for home and street."
-              link="/collections/sweatpants"
-              tag="Relaxed Comfort"
-            />
-
-            {/* Item 3: Tees / Layering (Small 1x1) */}
-            <GlitchCard
-              className="md:col-span-1 md:row-span-1"
-              image={lookbook1}
-              title="Essential Tees"
-              subtitle="Premium lightweight cotton."
-              link="/collections/tees"
-            />
-
-            {/* Item 4: Accessories / Details (Small 1x1) */}
-            <GlitchCard
-              className="md:col-span-1 md:row-span-1"
-              image={productHoodie2}
-              title="The Details"
-              subtitle="View the full lookbook."
-              link="/collections/accessories"
-            />
-          </div>
-        </div>
-      </section>
+      {/* Customer Feedback Section */}
+      <FeedbackSection />
 
       {/* Categories - 50/50 Split */}
       <section className="w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 h-[80vh] min-h-[600px]">
           {/* Hoodies - Left */}
           <Link to="/collections/hoodies" className="group relative block overflow-hidden w-full h-full">
-            <img
+            <OptimizedImage
               src={productHoodie1}
               alt="Oversized Hoodies"
               className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
@@ -458,33 +444,42 @@ const Index = () => {
 
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 text-center p-6">
               <h2 className="text-5xl md:text-7xl font-bold text-white tracking-tighter mb-6 drop-shadow-lg transform transition-transform duration-500 group-hover:-translate-y-2">
-                Oversized Hoodies
+                {t('home.categories.hoodies')}
               </h2>
               <span className="inline-block text-white text-sm font-bold tracking-[0.2em] uppercase border-b-2 border-white pb-2 hover:text-white/80 hover:border-white/80 transition-all opacity-90 group-hover:opacity-100">
-                Shop Hoodies
+                {t('home.categories.shopHoodies')}
               </span>
             </div>
           </Link>
 
           {/* Sweatpants - Right */}
-          <Link to="/collections/sweatpants" className="group relative block overflow-hidden w-full h-full">
-            <img
+          <div className="group relative block overflow-hidden w-full h-full cursor-not-allowed">
+            <OptimizedImage
               src={productSweatpants1}
               alt="Sweatpants"
-              className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105 opacity-60"
             />
             {/* Dark Overlay */}
-            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors duration-500" />
+            <div className="absolute inset-0 bg-black/50 group-hover:bg-black/60 transition-colors duration-500" />
 
-            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 text-center p-6">
+            {/* Coming Soon Overlay for Split Section */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+              <div className="border-2 border-white px-8 py-4 mb-4">
+                <span className="text-2xl md:text-4xl font-black text-white uppercase tracking-[0.3em]">
+                  {t('home.categories.comingSoon')}
+                </span>
+              </div>
+            </div>
+
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 text-center p-6 group-hover:opacity-20 transition-opacity duration-500">
               <h2 className="text-5xl md:text-7xl font-bold text-white tracking-tighter mb-6 drop-shadow-lg transform transition-transform duration-500 group-hover:-translate-y-2">
-                Sweatpants
+                {t('home.categories.sweatpants')}
               </h2>
-              <span className="inline-block text-white text-sm font-bold tracking-[0.2em] uppercase border-b-2 border-white pb-2 hover:text-white/80 hover:border-white/80 transition-all opacity-90 group-hover:opacity-100">
-                Shop Sweatpants
+              <span className="inline-block text-white text-sm font-bold tracking-[0.2em] uppercase border-b-2 border-white pb-2 opacity-90">
+                {t('home.categories.comingSoon')}
               </span>
             </div>
-          </Link>
+          </div>
         </div>
       </section>
 
@@ -499,7 +494,7 @@ const Index = () => {
               transition={{ duration: 0.8 }}
               className="heading-1 mb-8"
             >
-              "LUXURY SHOULD WHISPER, NOT SHOUT."
+              {t('home.brandStatement')}
             </motion.h2>
             <motion.div
               initial={{ opacity: 0, y: 20 }}

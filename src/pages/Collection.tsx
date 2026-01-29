@@ -3,35 +3,35 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react';
 import { ProductCard } from '@/components/product/ProductCard';
-import { collections, getProductsByCollection, products } from '@/data/products';
 import { useUIStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
-
-// Import images
-import productHoodie1 from '@/assets/product-hoodie-1.jpg';
-import productHoodie2 from '@/assets/product-hoodie-2.jpg';
-import productSweatpants1 from '@/assets/product-sweatpants-1.jpg';
-import productSweatpants2 from '@/assets/product-sweatpants-2.jpg';
-import lookbook1 from '@/assets/lookbook-1.jpg';
-
-const getProductImages = (index: number) => [
-  index % 2 === 0 ? productHoodie1 : productSweatpants1,
-  index % 2 === 0 ? productHoodie2 : productSweatpants2,
-  lookbook1,
-];
+import { useCollections } from '@/hooks/useCollections';
+import { useProducts } from '@/hooks/useProducts';
+import { useCategories } from '@/hooks/useCategories';
 
 const Collection = () => {
   const { handle } = useParams<{ handle: string }>();
   const { t, i18n } = useTranslation();
   const { language } = useUIStore();
 
-  const collection = collections.find(c => c.handle === handle);
-  const collectionProducts = getProductsByCollection(handle || '').map((p, i) => ({
-    ...p,
-    images: getProductImages(i),
-  }));
+  const { collections: allCollections, loading: collectionsLoading } = useCollections();
+  const { categories: allCategories, loading: categoriesLoading } = useCategories();
+  const { products: allProducts, loading: productsLoading } = useProducts(handle);
 
-  if (!collection) {
+  const collection = allCollections.find(c => c.handle === handle);
+  const category = allCategories.find(c => c.handle === handle);
+
+  const activeEntity = collection || category;
+  const collectionProducts = allProducts;
+
+  if (collectionsLoading || categoriesLoading || productsLoading) {
+    return (
+      <div className="pt-24 min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+  if (!activeEntity) {
     return (
       <div className="pt-24 min-h-screen flex items-center justify-center">
         <p className="text-muted-foreground">Collection not found</p>
@@ -39,8 +39,8 @@ const Collection = () => {
     );
   }
 
-  const title = language === 'ar' ? collection.titleAr : collection.title;
-  const description = language === 'ar' ? collection.descriptionAr : collection.description;
+  const title = activeEntity.title;
+  const description = activeEntity.description;
 
   return (
     <div className="pt-24">
@@ -73,7 +73,7 @@ const Collection = () => {
       </div>
 
       {/* Coming Soon */}
-      {collection.comingSoon ? (
+      {('comingSoon' in activeEntity && activeEntity.comingSoon) ? (
         <div className="container-vero section-padding text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

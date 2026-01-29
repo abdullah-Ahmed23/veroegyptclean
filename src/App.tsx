@@ -13,30 +13,55 @@ import { CustomCursor } from "@/components/ui/CustomCursor";
 
 import "@/lib/i18n";
 
+import { useAuthStore } from "@/lib/authStore";
+import { usePresenceTracking } from "@/hooks/usePresence";
+
 const queryClient = new QueryClient();
 
 // Lazy Load Pages
-const Index = lazy(() => import("./pages/Index"));
-const Shop = lazy(() => import("./pages/Shop"));
-const Product = lazy(() => import("./pages/Product"));
-const Collection = lazy(() => import("./pages/Collection"));
-const Cart = lazy(() => import("./pages/Cart"));
-const BrandStory = lazy(() => import("./pages/BrandStory"));
-const Lookbook = lazy(() => import("./pages/Lookbook"));
-const Policy = lazy(() => import("./pages/Policy"));
-const NotFound = lazy(() => import("./pages/NotFound"));
+const Index = lazy(() => import("@/pages/Index"));
+const Shop = lazy(() => import("@/pages/Shop"));
+const Product = lazy(() => import("@/pages/Product"));
+const Collection = lazy(() => import("@/pages/Collection"));
+const Cart = lazy(() => import("@/pages/Cart"));
+const BrandStory = lazy(() => import("@/pages/BrandStory"));
+const Lookbook = lazy(() => import("@/pages/Lookbook"));
+const Policy = lazy(() => import("@/pages/Policy"));
+const FAQ = lazy(() => import("@/pages/FAQ"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
+const CustomStudio = lazy(() => import("@/pages/CustomStudio"));
+const Checkout = lazy(() => import("@/pages/Checkout"));
+const Contact = lazy(() => import("@/pages/Contact"));
+
+// Admin Pages
+const AdminLogin = lazy(() => import("@/pages/admin/Login"));
+const AdminDashboard = lazy(() => import("@/pages/admin/Dashboard"));
+const AdminCategories = lazy(() => import("@/pages/admin/Categories"));
+const AdminProducts = lazy(() => import("@/pages/admin/Products"));
+const AdminOrders = lazy(() => import("@/pages/admin/Orders"));
+const AdminCustomDesigns = lazy(() => import("@/pages/admin/CustomDesigns"));
+const AdminCustomDesignDetail = lazy(() => import("@/pages/admin/CustomDesignDetail"));
+const AdminFeedbacks = lazy(() => import("@/pages/admin/Feedbacks"));
+const AdminLayout = lazy(() => import("@/components/admin/AdminLayout"));
 
 const AppContent = () => {
   const { isDarkMode } = useUIStore();
+  const { initialize } = useAuthStore();
   const location = useLocation();
   const [isLoading, setIsLoading] = React.useState(true);
   const isFirstRender = React.useRef(true);
+
+  usePresenceTracking();
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   React.useLayoutEffect(() => {
     // Scroll to top on route change
     window.scrollTo(0, 0);
 
-    let timer: NodeJS.Timeout;
+    let timer: any;
 
     if (isFirstRender.current) {
       // Initial Load - 3 Seconds
@@ -56,24 +81,30 @@ const AppContent = () => {
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
-    document.body.style.cursor = 'none';
-    return () => { document.body.style.cursor = 'auto'; };
-  }, [isDarkMode]);
+    if (!isAdminRoute) {
+      document.body.classList.add('custom-cursor-area');
+    } else {
+      document.body.classList.remove('custom-cursor-area');
+    }
+  }, [isDarkMode, isAdminRoute]);
 
   return (
     <>
-      <CustomCursor />
+      {!isAdminRoute && <CustomCursor />}
 
       {/* Global Glitch Overlay */}
       <AnimatePresence mode="wait">
-        {isLoading && <GlitchTransition key="loader" />}
+        {isLoading && !isAdminRoute && <GlitchTransition key="loader" />}
       </AnimatePresence>
 
       <AnimatePresence mode="wait">
-        {!isLoading && (
+        {(!isLoading || isAdminRoute) && (
           <Routes location={location} key={location.pathname}>
+            {/* Storefront Routes */}
             <Route element={<Layout />}>
               <Route path="/" element={
                 <PageWrapper>
@@ -131,14 +162,99 @@ const AppContent = () => {
                   </Suspense>
                 </PageWrapper>
               } />
-              <Route path="*" element={
+              <Route path="/faq" element={
+                <PageWrapper>
+                  <Suspense fallback={<div className="pt-24 text-center">Loading FAQ...</div>}>
+                    <FAQ />
+                  </Suspense>
+                </PageWrapper>
+              } />
+              <Route path="/custom-studio" element={
                 <PageWrapper>
                   <Suspense fallback={null}>
-                    <NotFound />
+                    <CustomStudio />
+                  </Suspense>
+                </PageWrapper>
+              } />
+              <Route path="/contact" element={
+                <PageWrapper>
+                  <Suspense fallback={null}>
+                    <Contact />
+                  </Suspense>
+                </PageWrapper>
+              } />
+              <Route path="/checkout" element={
+                <PageWrapper>
+                  <Suspense fallback={null}>
+                    <Checkout />
                   </Suspense>
                 </PageWrapper>
               } />
             </Route>
+
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={
+              <Suspense fallback={null}>
+                <AdminLogin />
+              </Suspense>
+            } />
+            <Route path="/admin" element={
+              <Suspense fallback={null}>
+                <AdminLayout>
+                  <AdminDashboard />
+                </AdminLayout>
+              </Suspense>
+            } />
+            <Route path="/admin/categories" element={
+              <Suspense fallback={null}>
+                <AdminLayout>
+                  <AdminCategories />
+                </AdminLayout>
+              </Suspense>
+            } />
+            <Route path="/admin/products" element={
+              <Suspense fallback={null}>
+                <AdminLayout>
+                  <AdminProducts />
+                </AdminLayout>
+              </Suspense>
+            } />
+            <Route path="/admin/orders" element={
+              <Suspense fallback={null}>
+                <AdminLayout>
+                  <AdminOrders />
+                </AdminLayout>
+              </Suspense>
+            } />
+            <Route path="/admin/custom-designs" element={
+              <Suspense fallback={null}>
+                <AdminLayout>
+                  <AdminCustomDesigns />
+                </AdminLayout>
+              </Suspense>
+            } />
+            <Route path="/admin/custom-designs/:id" element={
+              <Suspense fallback={null}>
+                <AdminLayout>
+                  <AdminCustomDesignDetail />
+                </AdminLayout>
+              </Suspense>
+            } />
+            <Route path="/admin/feedbacks" element={
+              <Suspense fallback={null}>
+                <AdminLayout>
+                  <AdminFeedbacks />
+                </AdminLayout>
+              </Suspense>
+            } />
+
+            <Route path="*" element={
+              <PageWrapper>
+                <Suspense fallback={null}>
+                  <NotFound />
+                </Suspense>
+              </PageWrapper>
+            } />
           </Routes>
         )}
       </AnimatePresence>

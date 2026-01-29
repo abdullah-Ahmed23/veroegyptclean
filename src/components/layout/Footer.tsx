@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Instagram, Twitter } from 'lucide-react';
+import { Facebook } from 'lucide-react';
 import { useUIStore } from '@/lib/store';
 import LogoWhite from '@/assets/main logo white.png';
 import LogoBlack from '@/assets/logo.png';
@@ -19,8 +19,6 @@ export function Footer() {
     ],
     about: [
       { label: t('footer.ourStory'), href: '/brand-story' },
-      { label: t('footer.careers'), href: '/careers' },
-      { label: t('footer.press'), href: '/press' },
     ],
     legal: [
       { label: t('footer.privacy'), href: '/policies/privacy' },
@@ -30,49 +28,6 @@ export function Footer() {
 
   return (
     <footer className="bg-card border-t border-border">
-      {/* Feedback Section */}
-      <div className="container-vero section-padding border-b border-border">
-        <div className="max-w-xl mx-auto text-center">
-          <motion.h3
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="heading-3 mb-3"
-          >
-            WE VALUE YOUR FEEDBACK
-          </motion.h3>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-muted-foreground mb-8"
-          >
-            Help us improve your experience. Share your thoughts with us.
-          </motion.p>
-          <motion.form
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="flex flex-col gap-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              alert("Thank you for your feedback!");
-            }}
-          >
-            <textarea
-              placeholder="Your feedback..."
-              rows={4}
-              className="input-vero w-full border border-border rounded-none px-4 py-3 resize-none bg-background focus:ring-1 focus:ring-foreground transition-all"
-            />
-            <button type="submit" className="btn-primary w-full sm:w-auto self-center px-12">
-              Values Your Feedback
-            </button>
-          </motion.form>
-        </div>
-      </div>
-
       {/* Links Section */}
       <div className="container-vero py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -90,22 +45,13 @@ export function Footer() {
             </p>
             <div className="flex gap-4 mt-6">
               <a
-                href="https://instagram.com"
+                href="https://www.facebook.com/profile.php?id=61586541811286"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Instagram"
+                className="text-muted-foreground hover:text-[#1877F2] transition-colors"
+                aria-label="Facebook"
               >
-                <Instagram className="h-5 w-5" />
-              </a>
-              <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Twitter"
-              >
-                <Twitter className="h-5 w-5" />
+                <Facebook className="h-5 w-5" />
               </a>
             </div>
           </div>
@@ -165,9 +111,12 @@ export function Footer() {
 
       {/* Copyright */}
       <div className="border-t border-border">
-        <div className="container-vero py-6">
+        <div className="container-vero py-6 flex flex-col items-center gap-2">
           <p className="text-xs text-muted-foreground text-center">
             {t('footer.copyright')}
+          </p>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/50 font-medium">
+            website made by <span className="text-vero-gold">abdullah ahmed</span>
           </p>
         </div>
       </div>

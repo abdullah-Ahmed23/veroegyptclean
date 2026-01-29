@@ -2,10 +2,12 @@ import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ArrowDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import lookbook1 from '@/assets/lookbook-1.jpg';
 import hero1 from '@/assets/hero-1.jpg';
 import hero2 from '@/assets/hero-2.png';
 import { useUIStore } from '@/lib/store';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import LogoWhite from '@/assets/main logo white.png';
 import LogoBlack from '@/assets/logo.png';
 
@@ -17,6 +19,7 @@ const HERO_SLIDES = [
 
 export function Hero() {
     const ref = useRef<HTMLDivElement>(null);
+    const { t } = useTranslation();
     const logoRef = useRef<HTMLDivElement>(null);
     const { isDarkMode, setHeroTheme } = useUIStore();
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -78,7 +81,7 @@ export function Hero() {
                     className="absolute inset-0 w-full h-full z-0"
                 >
                     <div className="absolute inset-0 bg-black/40 z-10" /> {/* Dark Overlay for Text Contrast */}
-                    <img
+                    <OptimizedImage
                         src={HERO_SLIDES[currentIndex].src}
                         alt="Hero"
                         className="w-full h-full object-cover"
@@ -113,7 +116,7 @@ export function Hero() {
                     transition={{ duration: 1, ease: "easeOut" }}
                 >
                     <p className="text-sm md:text-base font-medium tracking-[0.5em] text-white/60 mb-6 uppercase drop-shadow-md">
-                        Est. Cairo 2024
+                        {t('hero.est')}
                     </p>
 
                     {/* Vintage Flashlight Reveal Container */}
@@ -138,7 +141,7 @@ export function Hero() {
                         `}</style>
                         <div className="w-full h-full relative">
                             {/* Ghost/Guide Logo (Very faint usage hint) */}
-                            <img
+                            <OptimizedImage
                                 src={LogoWhite}
                                 alt=""
                                 className="absolute top-0 left-0 w-full h-auto object-contain opacity-[0.05]"
@@ -182,7 +185,7 @@ export function Hero() {
                             />
 
                             {/* Revealed Logo */}
-                            <img
+                            <OptimizedImage
                                 src={LogoWhite} // Always white on dark immersive background
                                 alt="VERO"
                                 className="w-full h-auto object-contain drop-shadow-xl relative z-10"
@@ -204,7 +207,7 @@ export function Hero() {
 
                 <div className="flex flex-col items-center gap-6">
                     <p className="text-white/90 max-w-xs text-center text-sm leading-relaxed hidden md:block drop-shadow-md">
-                        Redefining Egyptian luxury with contemporary streetwear aesthetics.
+                        {t('hero.tagline')}
                     </p>
                     <Link
                         to="/shop"
@@ -212,7 +215,7 @@ export function Hero() {
                         onClick={(e) => e.stopPropagation()} // Prevent hero cycle when clicking CTA
                     >
                         <span className="relative z-10 flex items-center gap-2 group-hover:gap-4 transition-all">
-                            Shop Collection <ArrowRight className="w-4 h-4" />
+                            {t('hero.cta')} <ArrowRight className="w-4 h-4" />
                         </span>
                     </Link>
                 </div>
@@ -224,7 +227,7 @@ export function Hero() {
                         onClick={() => document.getElementById('fresh-drops')?.scrollIntoView({ behavior: 'smooth' })}
                     >
                         <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70 group-hover/scroll:text-white transition-colors">
-                            Scroll
+                            {t('hero.scroll')}
                         </span>
                         <div className="w-12 h-12 rounded-full border border-white/30 flex items-center justify-center backdrop-blur-md group-hover/scroll:bg-white group-hover/scroll:border-white transition-all duration-300">
                             <ArrowDown className="w-5 h-5 text-white group-hover/scroll:text-black group-hover/scroll:translate-y-1 transition-all duration-300 animate-bounce-slight" />

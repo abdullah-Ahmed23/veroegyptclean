@@ -3,12 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { ArrowRight, ShoppingBag, Trash2 } from 'lucide-react';
 import { useCartStore, useUIStore, formatPrice } from '@/lib/store';
+import { CustomHoodieThumbnail } from '@/components/product/CustomHoodieThumbnail';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const Cart = () => {
   const { t } = useTranslation();
   const { language } = useUIStore();
-  const { items, removeItem, updateQuantity, getSubtotal } = useCartStore();
+  const { items, removeItem, updateQuantity, getSubtotal, setIsOpen } = useCartStore();
 
   const subtotal = getSubtotal();
 
@@ -57,12 +59,22 @@ const Cart = () => {
                 className="flex gap-6 py-6 border-b border-border"
               >
                 {/* Image */}
-                <div className="w-32 h-40 bg-secondary overflow-hidden flex-shrink-0">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="w-32 h-40 bg-secondary overflow-hidden flex-shrink-0 border border-border">
+                  {item.productId === 'custom-hoodie' ? (
+                    <CustomHoodieThumbnail
+                      colorHex={item.colorHex || '#000000'}
+                      frontImage={item.image}
+                      backImage={item.backImage}
+                      designState={item.customDesigns}
+                      className="h-full w-full"
+                    />
+                  ) : (
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
 
                 {/* Details */}
@@ -73,6 +85,12 @@ const Cart = () => {
                       <p className="text-sm text-muted-foreground mt-1">
                         {item.size} / {item.color}
                       </p>
+                      {item.customDesigns && (
+                        <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-vero-gold/10 border border-vero-gold/20">
+                          <span className="w-1.5 h-1.5 rounded-full bg-vero-gold animate-pulse" />
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-vero-gold">Custom Design</span>
+                        </div>
+                      )}
                     </div>
                     <button
                       onClick={() => removeItem(item.id)}
@@ -93,8 +111,18 @@ const Cart = () => {
                       </button>
                       <span className="px-4 font-medium">{item.quantity}</span>
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="px-3 py-2 hover:bg-secondary transition-colors"
+                        onClick={() => {
+                          if (!item.stock || item.quantity < item.stock) {
+                            updateQuantity(item.id, item.quantity + 1);
+                          } else {
+                            toast.error(language === 'ar' ? 'عذراً، هذا هو أقصى كمية متاحة' : 'Sorry, this is the maximum available quantity');
+                          }
+                        }}
+                        disabled={item.stock && item.quantity >= item.stock}
+                        className={cn(
+                          "px-3 py-2 hover:bg-secondary transition-colors",
+                          item.stock && item.quantity >= item.stock && "opacity-20 cursor-not-allowed"
+                        )}
                       >
                         +
                       </button>
@@ -102,7 +130,9 @@ const Cart = () => {
 
                     {/* Price */}
                     <p className="price-display">
-                      {formatPrice(item.price * item.quantity, language)}
+                      {item.price === 0
+                        ? (language === 'ar' ? 'السعر عند التواصل' : 'Contact for Price')
+                        : formatPrice(item.price * item.quantity, language)}
                     </p>
                   </div>
                 </div>
@@ -140,22 +170,36 @@ const Cart = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">{t('cart.shipping')}</span>
-                  <span className="text-muted-foreground">{t('cart.shippingNote')}</span>
+                  <span className={subtotal < 2000 ? "text-foreground" : "text-vero-gold"}>
+                    {subtotal === 0 ? t('cart.shippingNote') : (subtotal < 2000 ? formatPrice(75, language) : t('shipping.standardTitle'))}
+                  </span>
                 </div>
               </div>
 
               <div className="flex justify-between py-4 mb-6">
                 <span className="font-medium">{t('cart.total')}</span>
-                <span className="price-display text-lg">{formatPrice(subtotal, language)}</span>
+                <div className="text-right">
+                  <span className="price-display text-lg">
+                    {formatPrice(subtotal + (subtotal > 0 && subtotal < 2000 ? 75 : 0), language)}
+                  </span>
+                  {items.some(i => i.price === 0) && (
+                    <p className="text-[10px] text-vero-gold font-black uppercase tracking-widest mt-1">
+                      {language === 'ar' ? 'بانتظار عرض السعر' : 'Quotation Pending'}
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Checkout */}
-              <button className="btn-primary w-full mb-4">
+              <Link
+                to="/checkout"
+                onClick={() => setIsOpen(false)}
+                className="btn-primary w-full mb-4 text-center block"
+              >
                 {t('cart.checkout')}
-              </button>
+              </Link>
 
               <p className="text-xs text-center text-muted-foreground">
-                Secure checkout powered by Shopify. 
                 Taxes and shipping calculated at checkout.
               </p>
             </motion.div>

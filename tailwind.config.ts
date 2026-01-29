@@ -53,6 +53,7 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         vero: {
+          gold: "hsl(var(--vero-gold))",
           neutral: "hsl(var(--vero-neutral))",
           concrete: "hsl(var(--vero-concrete))",
           charcoal: "hsl(var(--vero-charcoal))",

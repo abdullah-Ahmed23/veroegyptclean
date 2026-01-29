@@ -11,9 +11,10 @@ interface GlitchCardProps {
     link: string;
     className?: string;
     tag?: string;
+    isComingSoon?: boolean;
 }
 
-export function GlitchCard({ image, title, subtitle, link, className, tag }: GlitchCardProps) {
+export function GlitchCard({ image, title, subtitle, link, className, tag, isComingSoon }: GlitchCardProps) {
     const ref = useRef<HTMLDivElement>(null);
     const [isHovered, setIsHovered] = useState(false);
 
@@ -55,6 +56,108 @@ export function GlitchCard({ image, title, subtitle, link, className, tag }: Gli
     const glitchX = useTransform(mouseXSpring, [-0.5, 0.5], [-10, 10]);
     const glitchY = useTransform(mouseYSpring, [-0.5, 0.5], [-5, 5]);
 
+    const CardContent = (
+        <>
+            {/* Glitch Layer - Red (Background) */}
+            <motion.div
+                style={{ x: glitchX, y: glitchY }}
+                animate={{
+                    opacity: isHovered ? [0, 0.4, 0, 0.2, 0] : 0,
+                    x: isHovered ? [-2, 2, -1, 0] : 0,
+                }}
+                transition={{
+                    opacity: { repeat: Infinity, duration: 0.2, repeatDelay: 0.1 },
+                    x: { repeat: Infinity, duration: 0.1 }
+                }}
+                className="absolute inset-0 z-0 mix-blend-screen opacity-0 pointer-events-none"
+            >
+                <img
+                    src={image}
+                    alt=""
+                    className="w-full h-full object-cover filter sepia-100 hue-rotate-[-50deg] saturate-200 contrast-150 scale-110"
+                />
+            </motion.div>
+
+            {/* Glitch Layer - Cyan (Background) */}
+            <motion.div
+                style={{ x: useTransform(glitchX, v => -v), y: useTransform(glitchY, v => -v) }}
+                animate={{
+                    opacity: isHovered ? [0, 0.4, 0, 0.2, 0] : 0,
+                    x: isHovered ? [2, -2, 1, 0] : 0,
+                }}
+                transition={{
+                    opacity: { repeat: Infinity, duration: 0.25, delay: 0.05, repeatDelay: 0.1 },
+                    x: { repeat: Infinity, duration: 0.1, delay: 0.05 }
+                }}
+                className="absolute inset-0 z-0 mix-blend-screen opacity-0 pointer-events-none"
+            >
+                <img
+                    src={image}
+                    alt=""
+                    className="w-full h-full object-cover filter sepia-100 hue-rotate-[130deg] saturate-200 contrast-150 scale-110"
+                />
+            </motion.div>
+
+            {/* Main Image with Parallax */}
+            <motion.div
+                style={{ x: imageX, y: imageY, scale: 1.1 }}
+                className="relative z-10 w-full h-full"
+            >
+                <img
+                    src={image}
+                    alt={title}
+                    className="w-full h-full object-cover transition-transform duration-700"
+                />
+            </motion.div>
+
+            {/* Dark Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500 z-20" />
+
+            {/* Coming Soon Overlay */}
+            {isComingSoon && (
+                <div className={cn(
+                    "absolute inset-0 z-40 bg-black/60 backdrop-blur-sm flex items-center justify-center transition-all duration-500",
+                    isHovered ? "opacity-100" : "opacity-0 pointer-events-none"
+                )}>
+                    <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: isHovered ? 1 : 0.8, opacity: isHovered ? 1 : 0 }}
+                        className="border-2 border-white px-8 py-4"
+                    >
+                        <span className="text-xl md:text-2xl font-black text-white uppercase tracking-[0.3em]">
+                            Coming Soon
+                        </span>
+                    </motion.div>
+                </div>
+            )}
+
+            {/* Content Content (Floating above) */}
+            <div
+                className="absolute inset-0 p-8 flex flex-col justify-end z-30 transform-style-3d"
+                style={{ transform: "translateZ(30px)" }} // Push content forward
+            >
+                <motion.div
+                    animate={{ y: isHovered ? 0 : 10, opacity: 1 }}
+                    transition={{ duration: 0.4 }}
+                    className="text-white"
+                >
+                    {tag && (
+                        <span className="text-xs md:text-sm font-bold tracking-[0.2em] uppercase mb-3 block text-[#49d77e] glow-text">
+                            {tag}
+                        </span>
+                    )}
+                    <h3 className="heading-3 md:text-3xl text-white mb-2 tracking-tight">{title}</h3>
+                    <p className="text-white/70 text-sm max-w-xs line-clamp-2 font-medium">
+                        {subtitle}
+                    </p>
+                </motion.div>
+            </div>
+
+            {/* Border / Frame Effect */}
+            <div className="absolute inset-0 border border-white/10 group-hover:border-white/30 transition-colors z-45 pointer-events-none" />
+        </>
+    );
+
     return (
         <motion.div
             ref={ref}
@@ -62,8 +165,9 @@ export function GlitchCard({ image, title, subtitle, link, className, tag }: Gli
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={handleMouseLeave}
             className={cn(
-                "group relative overflow-hidden rounded-sm cursor-pointer perspective-1000 bg-black",
+                "group relative overflow-hidden rounded-sm perspective-1000 bg-black",
                 "transition-transform duration-500",
+                isComingSoon ? "cursor-not-allowed" : "cursor-pointer",
                 className
             )}
             style={{
@@ -73,88 +177,15 @@ export function GlitchCard({ image, title, subtitle, link, className, tag }: Gli
                 rotateY: window.matchMedia('(pointer: fine)').matches ? rotateY : 0,
             }}
         >
-            <Link to={link} className="block w-full h-full relative transform-style-3d">
-
-                {/* Glitch Layer - Red (Background) */}
-                <motion.div
-                    style={{ x: glitchX, y: glitchY }}
-                    animate={{
-                        opacity: isHovered ? [0, 0.4, 0, 0.2, 0] : 0,
-                        x: isHovered ? [-2, 2, -1, 0] : 0,
-                    }}
-                    transition={{
-                        opacity: { repeat: Infinity, duration: 0.2, repeatDelay: 0.1 },
-                        x: { repeat: Infinity, duration: 0.1 }
-                    }}
-                    className="absolute inset-0 z-0 mix-blend-screen opacity-0 pointer-events-none"
-                >
-                    <img
-                        src={image}
-                        alt=""
-                        className="w-full h-full object-cover filter sepia-100 hue-rotate-[-50deg] saturate-200 contrast-150 scale-110"
-                    />
-                </motion.div>
-
-                {/* Glitch Layer - Cyan (Background) */}
-                <motion.div
-                    style={{ x: useTransform(glitchX, v => -v), y: useTransform(glitchY, v => -v) }}
-                    animate={{
-                        opacity: isHovered ? [0, 0.4, 0, 0.2, 0] : 0,
-                        x: isHovered ? [2, -2, 1, 0] : 0,
-                    }}
-                    transition={{
-                        opacity: { repeat: Infinity, duration: 0.25, delay: 0.05, repeatDelay: 0.1 },
-                        x: { repeat: Infinity, duration: 0.1, delay: 0.05 }
-                    }}
-                    className="absolute inset-0 z-0 mix-blend-screen opacity-0 pointer-events-none"
-                >
-                    <img
-                        src={image}
-                        alt=""
-                        className="w-full h-full object-cover filter sepia-100 hue-rotate-[130deg] saturate-200 contrast-150 scale-110"
-                    />
-                </motion.div>
-
-                {/* Main Image with Parallax */}
-                <motion.div
-                    style={{ x: imageX, y: imageY, scale: 1.1 }}
-                    className="relative z-10 w-full h-full"
-                >
-                    <img
-                        src={image}
-                        alt={title}
-                        className="w-full h-full object-cover transition-transform duration-700"
-                    />
-                </motion.div>
-
-                {/* Dark Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500 z-20" />
-
-                {/* Content Content (Floating above) */}
-                <div
-                    className="absolute inset-0 p-8 flex flex-col justify-end z-30 transform-style-3d"
-                    style={{ transform: "translateZ(30px)" }} // Push content forward
-                >
-                    <motion.div
-                        animate={{ y: isHovered ? 0 : 10, opacity: 1 }}
-                        transition={{ duration: 0.4 }}
-                        className="text-white"
-                    >
-                        {tag && (
-                            <span className="text-xs md:text-sm font-bold tracking-[0.2em] uppercase mb-3 block text-[#4ade80] glow-text">
-                                {tag}
-                            </span>
-                        )}
-                        <h3 className="heading-3 md:text-3xl text-white mb-2 tracking-tight">{title}</h3>
-                        <p className="text-white/70 text-sm max-w-xs line-clamp-2 font-medium">
-                            {subtitle}
-                        </p>
-                    </motion.div>
+            {isComingSoon ? (
+                <div className="block w-full h-full relative transform-style-3d">
+                    {CardContent}
                 </div>
-
-                {/* Border / Frame Effect */}
-                <div className="absolute inset-0 border border-white/10 group-hover:border-white/30 transition-colors z-40 pointer-events-none" />
-            </Link>
+            ) : (
+                <Link to={link} className="block w-full h-full relative transform-style-3d">
+                    {CardContent}
+                </Link>
+            )}
         </motion.div>
     );
 }

@@ -3,24 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { SlidersHorizontal, X, ChevronDown, Check } from 'lucide-react';
 import { ProductCard } from '@/components/product/ProductCard';
-import { products, getUniqueSizes, getUniqueColors } from '@/data/products';
 import { cn } from '@/lib/utils';
-
-// Import images
-import productHoodie1 from '@/assets/product-hoodie-1.jpg';
-import productHoodie2 from '@/assets/product-hoodie-2.jpg';
-import productSweatpants1 from '@/assets/product-sweatpants-1.jpg';
-import productSweatpants2 from '@/assets/product-sweatpants-2.jpg';
-import lookbook1 from '@/assets/lookbook-1.jpg';
-
-const productsWithImages = products.map((product, index) => ({
-  ...product,
-  images: [
-    index % 2 === 0 ? productHoodie1 : productSweatpants1,
-    index % 2 === 0 ? productHoodie2 : productSweatpants2,
-    lookbook1,
-  ],
-}));
+import { useProducts } from '@/hooks/useProducts';
 
 type SortOption = 'featured' | 'newest' | 'price-low-high' | 'price-high-low';
 
@@ -32,11 +16,22 @@ const Shop = () => {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
   const [sortBy, setSortBy] = useState<SortOption>('featured');
 
-  const sizes = getUniqueSizes();
-  const colors = getUniqueColors();
+  const { products: allProducts, loading } = useProducts();
+
+  const sizes = useMemo(() => {
+    const s = new Set<string>();
+    allProducts.forEach(p => p.variants.forEach(v => s.add(v.size)));
+    return Array.from(s).sort();
+  }, [allProducts]);
+
+  const colors = useMemo(() => {
+    const c = new Set<string>();
+    allProducts.forEach(p => p.variants.forEach(v => c.add(v.color)));
+    return Array.from(c).sort();
+  }, [allProducts]);
 
   const filteredProducts = useMemo(() => {
-    let result = [...productsWithImages];
+    let result = [...allProducts];
 
     // Filter by size
     if (selectedSizes.length > 0) {
@@ -71,7 +66,7 @@ const Shop = () => {
     }
 
     return result;
-  }, [selectedSizes, selectedColors, priceRange, sortBy]);
+  }, [allProducts, selectedSizes, selectedColors, priceRange, sortBy]);
 
   const toggleSize = (size: string) => {
     setSelectedSizes(prev =>
@@ -105,9 +100,9 @@ const Shop = () => {
         >
           {[...Array(10)].map((_, i) => (
             <span key={i} className="text-sm font-bold uppercase tracking-[0.2em] flex items-center gap-8">
-              New Collection 2024 <span className="w-2 h-2 rounded-full bg-background" />
-              Limited Edition <span className="w-2 h-2 rounded-full bg-background" />
-              Free Worldwide Shipping <span className="w-2 h-2 rounded-full bg-background" />
+              {t('shop.marquee.newCollection')} <span className="w-2 h-2 rounded-full bg-background" />
+              {t('shop.marquee.limitedEdition')} <span className="w-2 h-2 rounded-full bg-background" />
+              {t('shop.marquee.freeShipping')} <span className="w-2 h-2 rounded-full bg-background" />
             </span>
           ))}
         </motion.div>
@@ -122,10 +117,10 @@ const Shop = () => {
               animate={{ opacity: 1, y: 0 }}
               className="heading-display mb-4"
             >
-              SHOP ALL
+              {t('shop.title')}
             </motion.h1>
             <p className="text-muted-foreground max-w-sm">
-              Explore our latest arrivals, designed for the modern individual seeking luxury and comfort.
+              {t('shop.description')}
             </p>
           </div>
 
@@ -135,7 +130,7 @@ const Shop = () => {
               className="btn-secondary flex-1 md:flex-none flex items-center justify-center gap-2"
             >
               <SlidersHorizontal className="h-4 w-4" />
-              <span>Filters</span>
+              <span>{t('shop.filters')}</span>
               {hasActiveFilters && (
                 <span className="flex h-1.5 w-1.5 rounded-full bg-foreground" />
               )}
@@ -147,10 +142,10 @@ const Shop = () => {
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
                 className="appearance-none bg-transparent border border-border px-4 py-4 pr-10 text-sm font-medium uppercase tracking-wider focus:outline-none w-full cursor-pointer hover:bg-secondary transition-colors"
               >
-                <option value="featured">Featured</option>
-                <option value="newest">Newest</option>
-                <option value="price-low-high">Price: Low to High</option>
-                <option value="price-high-low">Price: High to Low</option>
+                <option value="featured">{t('shop.sort.featured')}</option>
+                <option value="newest">{t('shop.sort.newest')}</option>
+                <option value="price-low-high">{t('shop.sort.priceLowHigh')}</option>
+                <option value="price-high-low">{t('shop.sort.priceHighLow')}</option>
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none text-muted-foreground" />
             </div>
@@ -168,7 +163,7 @@ const Shop = () => {
             >
               <div className="p-6 border border-border bg-secondary/30 grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-widest mb-4 text-muted-foreground">Size</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-widest mb-4 text-muted-foreground">{t('product.selectSize')}</h3>
                   <div className="flex flex-wrap gap-2">
                     {sizes.map(size => (
                       <button
@@ -188,7 +183,7 @@ const Shop = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-widest mb-4 text-muted-foreground">Color</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-widest mb-4 text-muted-foreground">{t('product.selectColor')}</h3>
                   <div className="flex flex-wrap gap-3">
                     {colors.map(color => (
                       <button
@@ -214,7 +209,7 @@ const Shop = () => {
                     onClick={clearFilters}
                     className="text-sm underline underline-offset-4 text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    Clear All Filters
+                    {t('shop.clearFilters')}
                   </button>
                 </div>
               </div>
@@ -225,7 +220,16 @@ const Shop = () => {
         {/* Product Grid */}
         <motion.div layout className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-12">
           <AnimatePresence mode='popLayout'>
-            {filteredProducts.length > 0 ? (
+            {loading ? (
+              // Loading Skeleton Grid
+              [...Array(8)].map((_, i) => (
+                <div key={i} className="space-y-4 animate-pulse">
+                  <div className="aspect-[3/4] bg-muted rounded-sm" />
+                  <div className="h-4 bg-muted w-2/3 rounded" />
+                  <div className="h-4 bg-muted w-1/3 rounded" />
+                </div>
+              ))
+            ) : filteredProducts.length > 0 ? (
               filteredProducts.map((product, index) => (
                 <ProductCard key={product.id} product={product} index={index} />
               ))
@@ -235,8 +239,8 @@ const Shop = () => {
                 animate={{ opacity: 1 }}
                 className="col-span-full py-20 text-center"
               >
-                <p className="text-xl text-muted-foreground">No products found matching your search.</p>
-                <button onClick={clearFilters} className="mt-4 underline">Clear Filters</button>
+                <p className="text-xl text-muted-foreground">{t('shop.noProducts')}</p>
+                <button onClick={clearFilters} className="mt-4 underline text-foreground">{t('shop.clearFilters')}</button>
               </motion.div>
             )}
           </AnimatePresence>

@@ -1,5 +1,6 @@
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useRef, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -78,13 +79,14 @@ const ScrambleText = ({ text, className }: { text: string, className?: string })
 };
 
 const lookbookImages = [
-  { src: heroImage, title: 'OVERSIZED_SILHOUETTES', subtitle: 'FALL_2024//LOG_01' },
-  { src: lookbook1, title: 'NEUTRAL_TONES', subtitle: 'ESSENTIAL_LAYERS//LOG_02' },
-  { src: productHoodie1, title: 'PREMIUM_TEXTURES', subtitle: 'HEAVYWEIGHT_FLEECE//LOG_03' },
-  { src: productSweatpants1, title: 'RELAXED_FITS', subtitle: 'EVERYDAY_COMFORT//LOG_04' },
+  { src: heroImage, titleKey: 'oversizedSilhouettes', subtitleKey: 'log01' },
+  { src: lookbook1, titleKey: 'neutralTones', subtitleKey: 'log02' },
+  { src: productHoodie1, titleKey: 'premiumTextures', subtitleKey: 'log03' },
+  { src: productSweatpants1, titleKey: 'relaxedFits', subtitleKey: 'log04' },
 ];
 
 const Lookbook = () => {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -115,12 +117,12 @@ const Lookbook = () => {
             className="mb-4"
           >
             <span className="inline-block px-3 py-1 border border-white/30 bg-black/50 backdrop-blur-md text-xs font-mono uppercase tracking-[0.2em] text-white">
-              VISUAL_DATABASE_V1
+              {t('lookbook.visualDatabase')}
             </span>
           </motion.div>
 
           <h1 className="heading-display text-6xl md:text-9xl tracking-tighter text-white mix-blend-difference">
-            <GlitchText text="LOOKBOOK" />
+            <GlitchText text={t('lookbook.title')} />
           </h1>
 
           <motion.p
@@ -129,7 +131,7 @@ const Lookbook = () => {
             transition={{ delay: 0.3 }}
             className="max-w-xl mx-auto mt-6 text-lg font-light text-[#F5DEB3]"
           >
-            <ScrambleText text="A visual exploration of our latest collection." />
+            <ScrambleText text={t('lookbook.tagline')} />
           </motion.p>
         </div>
       </section>
@@ -153,12 +155,12 @@ const Lookbook = () => {
       {/* CTA */}
       <section className="section-padding relative overflow-hidden bg-black text-white text-center border-t border-white/10">
         <div className="relative z-10">
-          <h2 className="heading-2 mb-6"><ScrambleText text="ACQUIRE THE UNIFORM" /></h2>
+          <h2 className="heading-2 mb-6"><ScrambleText text={t('lookbook.ctaTitle')} /></h2>
           <p className="text-white/60 mb-8 max-w-md mx-auto">
-            System ready. Inventory status: Available.
+            {t('lookbook.ctaSubtitle')}
           </p>
           <Link to="/shop" className="group relative inline-flex items-center gap-4 px-8 py-3 bg-white text-black font-bold uppercase tracking-widest overflow-hidden hover:bg-white/90 transition-colors">
-            <span className="relative z-10">Initiate Purchase</span>
+            <span className="relative z-10">{t('lookbook.ctaButton')}</span>
             <ArrowRight className="h-4 w-4 relative z-10 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
@@ -173,11 +175,13 @@ const Lookbook = () => {
 };
 
 interface LookbookItemProps {
-  image: { src: string; title: string; subtitle: string };
+  image: { src: string; titleKey: string; subtitleKey: string };
   index: number;
 }
 
 const LookbookItem = ({ image, index }: LookbookItemProps) => {
+  const { t } = useTranslation();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
@@ -193,7 +197,7 @@ const LookbookItem = ({ image, index }: LookbookItemProps) => {
           <div className="absolute inset-0 bg-foreground/10 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none mix-blend-overlay" />
           <img
             src={image.src}
-            alt={image.title}
+            alt={t(`lookbook.items.${image.titleKey}`)}
             className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-out scale-100 group-hover:scale-105"
           />
         </div>
@@ -211,10 +215,10 @@ const LookbookItem = ({ image, index }: LookbookItemProps) => {
           transition={{ delay: 0.3 }}
         >
           <p className="font-mono text-xs text-muted-foreground mb-4 uppercase tracking-widest">
-            <ScrambleText text={image.subtitle} />
+            <ScrambleText text={t(`lookbook.items.${image.subtitleKey}`)} />
           </p>
           <h2 className="heading-2 mb-6 group cursor-default">
-            <GlitchText text={image.title} />
+            <GlitchText text={t(`lookbook.items.${image.titleKey}`)} />
           </h2>
           <div className={`h-px w-24 bg-foreground/30 ${index % 2 === 1 ? 'ml-auto mr-auto lg:mr-0' : 'mx-auto lg:mx-0'}`} />
         </motion.div>

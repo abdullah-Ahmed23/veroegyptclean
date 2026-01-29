@@ -1,21 +1,22 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { X, Minus, Plus, Trash2 } from 'lucide-react';
-import { useCartStore, formatPrice } from '@/lib/store';
-import { useUIStore } from '@/lib/store';
+import { useUIStore, useCartStore, formatPrice } from '@/lib/store';
+import { CustomHoodieThumbnail } from '@/components/product/CustomHoodieThumbnail';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 
 export function CartDrawer() {
   const { t } = useTranslation();
   const { language } = useUIStore();
-  const { 
-    items, 
-    isOpen, 
-    setIsOpen, 
-    removeItem, 
-    updateQuantity, 
-    getSubtotal 
+  const {
+    items,
+    isOpen,
+    setIsOpen,
+    removeItem,
+    updateQuantity,
+    getSubtotal
   } = useCartStore();
 
   const subtotal = getSubtotal();
@@ -29,7 +30,7 @@ export function CartDrawer() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[200]"
             onClick={() => setIsOpen(false)}
           />
 
@@ -40,7 +41,7 @@ export function CartDrawer() {
             exit={{ x: language === 'ar' ? '-100%' : '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className={cn(
-              'fixed top-0 bottom-0 w-full max-w-md bg-background z-50 flex flex-col',
+              'fixed top-0 bottom-0 w-full max-w-md bg-background z-[210] flex flex-col',
               language === 'ar' ? 'left-0 border-r' : 'right-0 border-l',
               'border-border'
             )}
@@ -81,13 +82,23 @@ export function CartDrawer() {
                       exit={{ opacity: 0, x: -20 }}
                       className="flex gap-4"
                     >
-                      {/* Image */}
-                      <div className="w-24 h-32 bg-secondary rounded-sm overflow-hidden flex-shrink-0">
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="w-full h-full object-cover"
-                        />
+                      {/* Product Image */}
+                      <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-border bg-secondary">
+                        {item.productId === 'custom-hoodie' ? (
+                          <CustomHoodieThumbnail
+                            colorHex={item.colorHex || '#000000'}
+                            frontImage={item.image}
+                            backImage={item.backImage}
+                            designState={item.customDesigns}
+                            className="h-full w-full"
+                          />
+                        ) : (
+                          <img
+                            src={item.image}
+                            alt={item.title}
+                            className="h-full w-full object-cover object-center"
+                          />
+                        )}
                       </div>
 
                       {/* Details */}
@@ -114,8 +125,17 @@ export function CartDrawer() {
                               {item.quantity}
                             </span>
                             <button
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="p-2 hover:bg-secondary transition-colors"
+                              onClick={() => {
+                                if (!item.stock || item.quantity < item.stock) {
+                                  updateQuantity(item.id, item.quantity + 1);
+                                } else {
+                                  toast.error(language === 'ar' ? 'عذراً، نفدت الكمية المتاحة' : 'Sorry, max stock reached');
+                                }
+                              }}
+                              className={cn(
+                                "p-2 hover:bg-secondary transition-colors",
+                                item.stock && item.quantity >= item.stock && "opacity-20 cursor-not-allowed"
+                              )}
                               aria-label="Increase quantity"
                             >
                               <Plus className="h-3 w-3" />
@@ -164,9 +184,13 @@ export function CartDrawer() {
                 </div>
 
                 {/* Checkout Button */}
-                <button className="btn-primary w-full">
+                <Link
+                  to="/checkout"
+                  onClick={() => setIsOpen(false)}
+                  className="btn-primary w-full text-center block"
+                >
                   {t('cart.checkout')}
-                </button>
+                </Link>
               </div>
             )}
           </motion.div>

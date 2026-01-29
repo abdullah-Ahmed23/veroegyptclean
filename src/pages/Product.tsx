@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, Minus, Plus, Truck, RotateCcw, Ruler, Check } from 'lucide-react';
@@ -8,18 +8,9 @@ import { useCartStore, useUIStore, formatPrice } from '@/lib/store';
 import { ProductCard } from '@/components/product/ProductCard';
 import { cn } from '@/lib/utils';
 
-// Import images
-import productHoodie1 from '@/assets/product-hoodie-1.jpg';
-import productHoodie2 from '@/assets/product-hoodie-2.jpg';
-import productSweatpants1 from '@/assets/product-sweatpants-1.jpg';
-import productSweatpants2 from '@/assets/product-sweatpants-2.jpg';
-import lookbook1 from '@/assets/lookbook-1.jpg';
-
-const getProductImages = (index: number) => [
-  index % 2 === 0 ? productHoodie1 : productSweatpants1,
-  index % 2 === 0 ? productHoodie2 : productSweatpants2,
-  lookbook1,
-];
+import { toast } from 'sonner';
+import { useProduct } from '@/hooks/useProduct';
+import { useProducts } from '@/hooks/useProducts';
 
 const Product = () => {
   const { handle } = useParams<{ handle: string }>();
@@ -27,12 +18,8 @@ const Product = () => {
   const { language } = useUIStore();
   const { addItem, setIsOpen } = useCartStore();
 
-  const productIndex = products.findIndex(p => p.handle === handle);
-  const baseProduct = getProductByHandle(handle || '');
-  const product = baseProduct ? {
-    ...baseProduct,
-    images: getProductImages(productIndex),
-  } : null;
+  const { product, loading: productLoading } = useProduct(handle);
+  const { products: allProducts, loading: productsLoading } = useProducts();
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -43,12 +30,14 @@ const Product = () => {
 
   const uniqueColors = useMemo(() => {
     if (!product) return [];
-    return [...new Set(product.variants.map(v => v.color))];
+    const colors = new Set(product.variants.map(v => v.color));
+    return Array.from(colors);
   }, [product]);
 
   const uniqueSizes = useMemo(() => {
     if (!product) return [];
-    return [...new Set(product.variants.map(v => v.size))];
+    const sizes = new Set(product.variants.map(v => v.size));
+    return Array.from(sizes);
   }, [product]);
 
   const selectedVariant = useMemo(() => {
@@ -56,33 +45,84 @@ const Product = () => {
     return product.variants.find(v => v.size === selectedSize && v.color === selectedColor);
   }, [product, selectedSize, selectedColor]);
 
-  const isAddToCartDisabled = !selectedVariant || !selectedVariant.available;
+  // Handle color selection to switch image
+  useEffect(() => {
+    if (product && selectedColor) {
+      const variantWithImage = product.variants.find(v => v.color === selectedColor && v.image_url);
+      if (variantWithImage?.image_url) {
+        // If the main images contain this variant image, find its index
+        const index = product.images.indexOf(variantWithImage.image_url);
+        if (index !== -1) {
+          setSelectedImageIndex(index);
+        } else {
+          // If not in the main images array (unlikely but possible), 
+          // we could either add it or just display it.
+          // For now, let's assume if it exists, it might be one of the images.
+          // Better: If it has a specific image_url, we show that.
+        }
+      }
+    }
+  }, [selectedColor, product]);
+
+  const displayImages = useMemo(() => {
+    if (!product) return [];
+    // If a variant image is selected, we might want to emphasize it.
+    // However, the user wants "change the image".
+    return product.images;
+  }, [product]);
+
+  const mainImageToShow = useMemo(() => {
+    if (!product) return '';
+    // If we have a selected variant with an image, use it, otherwise use selectedImageIndex
+    if (selectedColor) {
+      const variantWithImage = product.variants.find(v => v.color === selectedColor && v.image_url);
+      if (variantWithImage?.image_url) return variantWithImage.image_url;
+    }
+    return product.images[selectedImageIndex] || '';
+  }, [product, selectedColor, selectedImageIndex]);
+
+  const isAddToCartDisabled = !selectedVariant || !selectedVariant.available || productLoading;
 
   const handleAddToCart = () => {
     if (!product || !selectedVariant) return;
 
+    // Check if cart has custom items
+    const hasCustomItems = useCartStore.getState().items.some(i => i.price === 0);
+    if (hasCustomItems) {
+      toast.error(t('cart.clearCustomFirst'));
+      return;
+    }
+
     addItem({
       productId: product.id,
       variantId: selectedVariant.id,
-      title: product.title,
-      image: product.images[0],
+      title: language === 'ar' ? (product.title_ar || product.title_en) : (product.title_en || product.title_ar),
+      image: selectedVariant.image_url || product.images[0] || '/placeholder.svg',
       size: selectedVariant.size,
       color: selectedVariant.color,
       price: selectedVariant.price,
       quantity,
+      stock: selectedVariant.stock,
     });
 
     setIsOpen(true);
   };
 
   // Related products
-  const relatedProducts = products
-    .filter(p => p.id !== product?.id && p.category === product?.category)
-    .slice(0, 4)
-    .map((p, i) => ({
-      ...p,
-      images: getProductImages(i + 1),
-    }));
+  const relatedProducts = useMemo(() => {
+    if (!product || !allProducts) return [];
+    return allProducts
+      .filter(p => p.id !== product.id && p.category === product.category)
+      .slice(0, 4);
+  }, [product, allProducts]);
+
+  if (productLoading || productsLoading) {
+    return (
+      <div className="pt-24 min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -100,13 +140,13 @@ const Product = () => {
           <div className="space-y-4">
             {/* Main Image */}
             <motion.div
-              key={selectedImageIndex}
+              key={mainImageToShow}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="aspect-[3/4] bg-secondary overflow-hidden"
             >
               <img
-                src={product.images[selectedImageIndex]}
+                src={mainImageToShow}
                 alt={product.title}
                 className="w-full h-full object-cover"
               />
@@ -142,7 +182,7 @@ const Product = () => {
               </span>
             )}
 
-            <h1 className="heading-2 mb-4">{product.title}</h1>
+            <h1 className="heading-2 mb-4">{language === 'ar' ? (product.title_ar || product.title_en) : (product.title_en || product.title_ar)}</h1>
 
             {/* Price */}
             <p className="price-display text-xl mb-6">
@@ -154,7 +194,7 @@ const Product = () => {
             {/* Color Selection */}
             <div className="mb-6">
               <p className="text-sm font-medium mb-3">
-                {t('product.selectColor')}: {selectedColor || '—'}
+                {t('product.selectColor')}: <span className="text-white">{selectedColor || '—'}</span>
               </p>
               <div className="flex gap-2">
                 {uniqueColors.map(color => {
@@ -179,7 +219,7 @@ const Product = () => {
             <div className="mb-6">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm font-medium">
-                  {t('product.selectSize')}: {selectedSize || '—'}
+                  {t('product.selectSize')}: <span className="text-white">{selectedSize || '—'}</span>
                 </p>
                 <button
                   onClick={() => setShowSizeGuide(true)}
@@ -217,9 +257,8 @@ const Product = () => {
               </div>
             </div>
 
-            {/* Quantity */}
             <div className="mb-6">
-              <p className="text-sm font-medium mb-3">Quantity</p>
+              <p className="text-sm font-medium mb-3">{t('common.quantity')}</p>
               <div className="inline-flex items-center border border-border">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -229,12 +268,27 @@ const Product = () => {
                 </button>
                 <span className="px-6 font-medium">{quantity}</span>
                 <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="p-3 hover:bg-secondary transition-colors"
+                  onClick={() => {
+                    if (selectedVariant && quantity < selectedVariant.stock) {
+                      setQuantity(prev => prev + 1);
+                    } else if (selectedVariant) {
+                      toast.error(language === 'ar' ? `الكمية القصوى المتاحة هي ${selectedVariant.stock}` : `Maximum available quantity is ${selectedVariant.stock}`);
+                    }
+                  }}
+                  disabled={selectedVariant && quantity >= selectedVariant.stock}
+                  className={cn(
+                    "p-3 hover:bg-secondary transition-colors",
+                    selectedVariant && quantity >= selectedVariant.stock && "opacity-20 cursor-not-allowed"
+                  )}
                 >
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
+              {selectedVariant && selectedVariant.stock <= 3 && selectedVariant.stock > 0 && (
+                <p className="text-xs text-vero-gold mt-2 font-medium">
+                  {language === 'ar' ? `بقي ${selectedVariant.stock} فقط!` : `Only ${selectedVariant.stock} left!`}
+                </p>
+              )}
             </div>
 
             {/* Add to Cart */}
@@ -247,7 +301,7 @@ const Product = () => {
               )}
             >
               {!selectedSize || !selectedColor
-                ? 'Select Options'
+                ? t('product.selectOptions')
                 : selectedVariant?.available
                   ? t('product.addToCart')
                   : t('product.outOfStock')}
@@ -285,7 +339,7 @@ const Product = () => {
                     exit={{ height: 0, opacity: 0 }}
                     className="pb-4"
                   >
-                    <p className="text-sm text-muted-foreground">{product.description}</p>
+                    <p className="text-sm text-muted-foreground">{language === 'ar' ? (product.description_ar || product.description_en) : (product.description_en || product.description_ar)}</p>
                   </motion.div>
                 )}
               </div>
@@ -312,18 +366,18 @@ const Product = () => {
                     <div className="flex items-start gap-3">
                       <Truck className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-sm font-medium">Free Shipping</p>
+                        <p className="text-sm font-medium">{t('shipping.standardTitle')}</p>
                         <p className="text-sm text-muted-foreground">
-                          On orders over 2,000 EGP. Standard delivery 3-5 business days.
+                          {t('shipping.standardDesc')}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <RotateCcw className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-sm font-medium">14-Day Returns</p>
+                        <p className="text-sm font-medium">{t('shipping.returnTitle')}</p>
                         <p className="text-sm text-muted-foreground">
-                          Free returns within 14 days of delivery.
+                          {t('shipping.returnDesc')}
                         </p>
                       </div>
                     </div>
@@ -366,22 +420,17 @@ const Product = () => {
               </thead>
               <tbody>
                 <tr className="border-b border-border/50">
-                  <td className="py-2">S</td>
-                  <td className="py-2">112</td>
-                  <td className="py-2">70</td>
-                </tr>
-                <tr className="border-b border-border/50">
-                  <td className="py-2">M</td>
+                  <td className="py-2">1X</td>
                   <td className="py-2">118</td>
                   <td className="py-2">72</td>
                 </tr>
                 <tr className="border-b border-border/50">
-                  <td className="py-2">L</td>
+                  <td className="py-2">2X</td>
                   <td className="py-2">124</td>
                   <td className="py-2">74</td>
                 </tr>
                 <tr>
-                  <td className="py-2">XL</td>
+                  <td className="py-2">3X</td>
                   <td className="py-2">130</td>
                   <td className="py-2">76</td>
                 </tr>

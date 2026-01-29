@@ -34,7 +34,7 @@ const Scene = () => {
             {/* Dramatic Lighting */}
             <ambientLight intensity={0.5} />
             <spotLight position={[10, 10, 5]} angle={0.4} penumbra={1} intensity={15} color="#ffffff" />
-            <pointLight position={[-10, -5, 5]} intensity={10} color="#4ade80" /> {/* Green rim light */}
+            <pointLight position={[-10, -5, 5]} intensity={10} color="#49d77e" /> {/* Green rim light */}
 
             <LiquidFabric />
 
@@ -57,7 +57,7 @@ const HeroOverlay = () => {
                     VERO
                 </h1>
                 <p className="text-sm md:text-base uppercase tracking-[0.2em] opacity-90 max-w-lg mx-auto font-medium">
-                    Egypt Elegance <span className="mx-2 text-white/50">•</span> Est. 2024
+                    Egypt Elegance <span className="mx-2 text-white/50">•</span> Est. 2026
                 </p>
             </motion.div>
 

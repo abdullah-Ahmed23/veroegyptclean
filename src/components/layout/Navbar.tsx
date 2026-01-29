@@ -19,24 +19,26 @@ interface NavLinkItem {
   children?: NavLinkItem[];
 }
 
-const navLinks: NavLinkItem[] = [
+const getNavLinks = (t: any) => [
   {
     key: 'shop',
-    href: '#', // Non-clickable
-    label: 'Shop',
+    href: '#',
+    label: t('nav.shop'),
     children: [
-      { key: 'all', href: '/shop', label: 'All Products' },
-      { key: 'hoodies', href: '/collections/hoodies', label: 'Oversized Hoodies' },
-      { key: 'sweatpants', href: '#', label: 'Sweatpants', comingSoon: true },
-      { key: 'sportswear', href: '#', label: 'Sports Wear', comingSoon: true },
+      { key: 'all', href: '/shop', label: t('collections.all') },
+      { key: 'hoodies', href: '/collections/hoodies', label: t('collections.hoodies') },
+      { key: 'sweatpants', href: '#', label: t('collections.sweatpants'), comingSoon: true },
+      { key: 'footwear', href: '#', label: t('collections.footwear'), comingSoon: true },
     ]
   },
-  { key: 'newArrivals', href: '/collections/new-arrivals', label: 'New Arrivals' },
-  { key: 'lookbook', href: '/lookbook', label: 'Lookbook' },
-  { key: 'brandStory', href: '/brand-story', label: 'Our Story' },
+  { key: 'newArrivals', href: '/collections/new-arrivals', label: t('nav.newArrivals') },
+  { key: 'customStudio', href: '/custom-studio', label: t('nav.customDesign') || 'Custom Design' },
+  { key: 'lookbook', href: '/lookbook', label: t('nav.lookbook') },
+  { key: 'brandStory', href: '/brand-story', label: t('nav.brandStory') },
 ];
 
 const GlitchText = ({ text, isActive }: { text: string, isActive: boolean }) => {
+  const { t } = useTranslation();
   const [isGlitching, setIsGlitching] = useState(false);
 
   // Trigger intense glitch on click
@@ -56,7 +58,7 @@ const GlitchText = ({ text, isActive }: { text: string, isActive: boolean }) => 
       <span className="relative z-10 flex items-center gap-2">
         {text}
         <span className="text-[10px] bg-red-500 text-white px-1 rounded uppercase tracking-widest font-bold">
-          Soon
+          {isActive ? (t('product.live') || 'Live') : (t('product.soon') || 'Soon')}
         </span>
       </span>
 
@@ -73,7 +75,7 @@ const GlitchText = ({ text, isActive }: { text: string, isActive: boolean }) => 
               }}
               transition={{ repeat: Infinity, duration: isGlitching ? 0.1 : 0.2 }}
             >
-              {text} <span className="text-[10px] uppercase">Soon</span>
+              {text} <span className="text-[10px] uppercase">{t('product.soon') || 'Soon'}</span>
             </motion.span>
             <motion.span
               className="absolute top-0 left-0 -z-10 text-blue-500 mix-blend-screen opacity-70"
@@ -84,7 +86,7 @@ const GlitchText = ({ text, isActive }: { text: string, isActive: boolean }) => 
               }}
               transition={{ repeat: Infinity, duration: isGlitching ? 0.1 : 0.25, delay: 0.05 }}
             >
-              {text} <span className="text-[10px] uppercase">Soon</span>
+              {text} <span className="text-[10px] uppercase">{t('product.soon') || 'Soon'}</span>
             </motion.span>
           </>
         )}
@@ -131,7 +133,7 @@ const MagneticLink = ({ link, isActive }: { link: NavLinkItem, isActive: boolean
       onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative z-50"
+      className="relative z-[100]"
     >
       <Link
         to={link.href}
@@ -140,7 +142,7 @@ const MagneticLink = ({ link, isActive }: { link: NavLinkItem, isActive: boolean
         }}
         className={cn(
           'relative px-5 py-2.5 rounded-full text-sm font-medium transition-colors duration-300 block',
-          isActive ? 'text-white' : 'text-white/60 hover:text-white',
+          isActive ? 'text-foreground' : 'text-foreground/60 hover:text-foreground',
           link.href === '#' && 'cursor-default' // Make parent 'Shop' cursor default if intended
         )}
       >
@@ -148,7 +150,7 @@ const MagneticLink = ({ link, isActive }: { link: NavLinkItem, isActive: boolean
         {isHovered && (
           <motion.div
             layoutId="navbar-hover-pill"
-            className="absolute inset-0 rounded-full -z-10 backdrop-blur-md bg-white/10"
+            className="absolute inset-0 rounded-full -z-10 backdrop-blur-md bg-foreground/10"
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
           />
         )}
@@ -157,7 +159,7 @@ const MagneticLink = ({ link, isActive }: { link: NavLinkItem, isActive: boolean
         {isActive && (
           <motion.div
             layoutId="navbar-active-pill"
-            className="absolute inset-0 rounded-full -z-10 shadow-[0_0_15px_rgba(255,255,255,0.1)] bg-white/5 border border-white/10"
+            className="absolute inset-0 rounded-full -z-10 shadow-[0_0_15px_rgba(0,0,0,0.05)] dark:shadow-[0_0_15px_rgba(255,255,255,0.1)] bg-foreground/5 border border-foreground/10"
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
           />
         )}
@@ -178,7 +180,7 @@ const MagneticLink = ({ link, isActive }: { link: NavLinkItem, isActive: boolean
                   initial={{ y: "100%" }}
                   animate={isHovered ? { y: 0 } : { y: "100%" }}
                   transition={{ duration: 0.5, ease: [0.33, 1, 0.68, 1], delay: i * 0.05 }}
-                  className="absolute inset-0 block text-[#4ade80]" // Green hover text
+                  className="absolute inset-0 block text-[#49d77e]"
                 >
                   {word}
                 </motion.span>
@@ -197,13 +199,13 @@ const MagneticLink = ({ link, isActive }: { link: NavLinkItem, isActive: boolean
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 py-2 w-56 bg-black/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-xl overflow-hidden"
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 py-2 w-56 bg-background/90 backdrop-blur-xl border border-border rounded-xl shadow-xl overflow-hidden"
           >
             {link.children.map((child) => (
               child.comingSoon ? (
                 <div
                   key={child.key}
-                  className="block px-4 py-3 text-sm text-white/50 cursor-not-allowed border-b border-white/5 last:border-0"
+                  className="block px-4 py-3 text-sm text-foreground cursor-not-allowed border-b border-border last:border-0"
                 >
                   <GlitchText text={child.label} isActive={false} />
                 </div>
@@ -211,7 +213,7 @@ const MagneticLink = ({ link, isActive }: { link: NavLinkItem, isActive: boolean
                 <Link
                   key={child.key}
                   to={child.href}
-                  className="block px-4 py-3 text-sm text-white/70 hover:text-white hover:bg-white/10 transition-colors border-b border-white/5 last:border-0"
+                  className="block px-4 py-3 text-sm text-foreground/70 hover:text-foreground hover:bg-foreground/10 transition-colors border-b border-border last:border-0"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {child.label}
@@ -227,6 +229,7 @@ const MagneticLink = ({ link, isActive }: { link: NavLinkItem, isActive: boolean
 
 export function Navbar() {
   const { t, i18n } = useTranslation();
+  const navLinks = getNavLinks(t);
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -234,7 +237,12 @@ export function Navbar() {
   const { isDarkMode, toggleDarkMode, setIsSearchOpen, language, setLanguage } = useUIStore();
   const { getItemCount, setIsOpen: setCartOpen } = useCartStore();
   const itemCount = getItemCount();
-  const isHome = location.pathname === '/'; // Check if on homepage
+  const isHome = location.pathname === '/';
+  const isCustomStudio = location.pathname === '/custom-studio';
+  const isSecondaryPage = ['/shop', '/lookbook', '/brand-story', '/custom-studio', '/cart'].some(path => location.pathname === path) ||
+    location.pathname.startsWith('/collections/') ||
+    location.pathname.startsWith('/product/') ||
+    location.pathname.startsWith('/policies/');
 
   // Enforce "Dark Mode" style (White text) always as per "one theme" request.
   // We ignore useLightContent logic and force light-on-dark styles.
@@ -276,9 +284,11 @@ export function Navbar() {
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
         className={cn(
-          'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+          'fixed top-0 left-0 right-0 z-[100] transition-all duration-300',
           isScrolled
-            ? 'py-2 backdrop-blur-xl border-b border-white/5' // Minimal padding on scroll
+            ? (isSecondaryPage
+              ? 'py-2 backdrop-blur-xl border-b border-border bg-background/80'
+              : 'py-2 backdrop-blur-xl border-b border-white/10 bg-black/90') // High-end dark header for brand consistency
             : 'py-6 bg-transparent'
         )}
       >
@@ -291,18 +301,18 @@ export function Navbar() {
               to="/"
               className={cn(
                 "relative z-50 transition-all duration-300",
-                isScrolled ? "bg-white p-2 rounded-lg shadow-lg" : "bg-transparent p-0 shadow-none scale-110"
+                isSecondaryPage ? "bg-white p-2.5 rounded-xl shadow-xl border border-black/5" : (isScrolled ? "scale-100" : "scale-110")
               )}
             >
               <img
-                src={isScrolled ? LogoDark : (isHome || isDarkMode ? LogoWhite : LogoDark)}
+                src={isSecondaryPage ? LogoDark : (isHome && !isScrolled ? LogoWhite : LogoWhite)}
                 alt="VERO"
                 className="h-8 md:h-10 w-auto object-contain"
               />
             </Link>
 
             {/* Desktop Navigation - Magnetic & Glass */}
-            <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 perspective-1000 z-50">
+            <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 perspective-1000 z-[100]">
               <motion.div
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
@@ -314,8 +324,8 @@ export function Navbar() {
                 }}
                 className={cn(
                   "flex items-center gap-1.5 px-2 py-2 rounded-full border transition-all duration-500",
-                  // Dark Glass Background for visibility on all surfaces
-                  "bg-black/60 backdrop-blur-xl border-white/10 shadow-2xl"
+                  // Glass Background for visibility on all surfaces
+                  "bg-background/60 dark:bg-black/60 backdrop-blur-xl border-border dark:border-white/10 shadow-2xl"
                 )}
               >
                 {navLinks.map((link) => (
@@ -331,10 +341,10 @@ export function Navbar() {
             {/* Right Actions */}
             <div className="flex items-center gap-2 relative z-50">
               {/* Wrapped in a glass pill for visibility */}
-              <div className="flex items-center gap-1 px-2 py-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl">
+              <div className="flex items-center gap-1 px-2 py-1.5 rounded-full bg-background/60 dark:bg-black/60 backdrop-blur-xl border border-border dark:border-white/10 shadow-2xl">
                 <button
                   onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
-                  className="btn-ghost flex items-center gap-1.5 text-xs uppercase tracking-wider hover:bg-white/10 p-2 rounded-full transition-colors duration-200 text-white"
+                  className="btn-ghost flex items-center gap-1.5 text-xs uppercase tracking-wider hover:bg-foreground/10 p-2 rounded-full transition-colors duration-200 text-foreground"
                 >
                   <Globe className="h-4 w-4" />
                   <span className="hidden sm:inline">{language === 'en' ? 'AR' : 'EN'}</span>
@@ -342,21 +352,21 @@ export function Navbar() {
 
                 <button
                   onClick={toggleDarkMode}
-                  className="btn-ghost p-2 rounded-full hover:bg-white/10 transition-colors duration-200 text-white"
+                  className="btn-ghost p-2 rounded-full hover:bg-foreground/10 transition-colors duration-200 text-foreground"
                 >
                   {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                 </button>
 
                 <button
                   onClick={() => setIsSearchOpen(true)}
-                  className="btn-ghost p-2 rounded-full hover:bg-white/10 transition-colors duration-200 text-white"
+                  className="btn-ghost p-2 rounded-full hover:bg-foreground/10 transition-colors duration-200 text-foreground"
                 >
                   <Search className="h-5 w-5" />
                 </button>
 
                 <button
                   onClick={() => setCartOpen(true)}
-                  className="btn-ghost p-2 rounded-full relative hover:bg-white/10 transition-colors duration-200 text-white"
+                  className="btn-ghost p-2 rounded-full relative hover:bg-foreground/10 transition-colors duration-200 text-foreground"
                 >
                   <ShoppingBag className="h-5 w-5" />
                   {itemCount > 0 && (
@@ -369,7 +379,7 @@ export function Navbar() {
 
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="btn-ghost p-2 lg:hidden bg-black/60 backdrop-blur-xl border border-white/10 rounded-full hover:bg-white/10 transition-colors duration-200 text-white"
+                className="btn-ghost p-2 lg:hidden bg-background/60 dark:bg-black/60 backdrop-blur-xl border border-border dark:border-white/10 rounded-full hover:bg-foreground/10 transition-colors duration-200 text-foreground"
               >
                 <Menu className="h-5 w-5" />
               </button>
@@ -386,17 +396,16 @@ export function Navbar() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200]"
               onClick={() => setIsMobileMenuOpen(false)}
             />
             <motion.div
-              initial={{ x: language === 'ar' ? '-100%' : '100%' }}
+              initial={{ x: '100%' }}
               animate={{ x: 0 }}
-              exit={{ x: language === 'ar' ? '-100%' : '100%' }}
+              exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
               className={cn(
-                'fixed top-0 bottom-0 w-full max-w-sm bg-[#0a0a0a] border-r border-white/10 z-50 p-6',
-                language === 'ar' ? 'left-0' : 'right-0'
+                'fixed top-0 bottom-0 w-full max-w-sm bg-background border-l border-border z-[210] p-6 right-0'
               )}
             >
               <div className="flex items-center justify-between mb-8">
@@ -405,7 +414,7 @@ export function Navbar() {
                 </div>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="btn-ghost p-2 text-white hover:bg-white/10 absolute top-6 right-6"
+                  className="btn-ghost p-2 text-foreground hover:bg-foreground/10 absolute top-6 right-6"
                 >
                   <X className="h-6 w-6" />
                 </button>
@@ -418,14 +427,14 @@ export function Navbar() {
                       onClick={() => {
                         if (link.href !== '#') setIsMobileMenuOpen(false);
                       }}
-                      className="group flex flex-col py-2 border-b border-white/5"
+                      className="group flex flex-col py-2 border-b border-border"
                     >
                       <div className="flex justify-between items-center w-full">
-                        <span className={cn("text-3xl font-display font-light text-white/80 group-hover:text-white transition-colors duration-300", link.href === '#' && "opacity-70")}>
+                        <span className={cn("text-3xl font-display font-light text-foreground group-hover:text-[#49d77e] transition-colors duration-300")}>
                           {link.href !== '#' ? <Link to={link.href}>{link.label}</Link> : link.label}
                         </span>
                         {link.href !== '#' && (
-                          <span className="text-white/40 group-hover:text-[#4ade80] transition-colors duration-300">
+                          <span className="text-foreground/40 group-hover:text-[#49d77e] transition-colors duration-300">
                             →
                           </span>
                         )}
@@ -437,14 +446,14 @@ export function Navbar() {
                           {link.children.map(child => (
                             <div key={child.key}>
                               {child.comingSoon ? (
-                                <div className="flex items-center gap-2 text-lg text-white/40">
-                                  {child.label} <span className="text-xs bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded">Soon</span>
+                                <div className="flex items-center gap-2 text-lg text-foreground font-medium">
+                                  {child.label} <span className="text-xs bg-red-500 text-white px-1.5 py-0.5 rounded font-bold">{t('product.soon') || 'Soon'}</span>
                                 </div>
                               ) : (
                                 <Link
                                   to={child.href}
                                   onClick={() => setIsMobileMenuOpen(false)}
-                                  className="text-lg text-white/60 hover:text-white block"
+                                  className="text-lg text-foreground group-hover:text-foreground/80 block"
                                 >
                                   {child.label}
                                 </Link>

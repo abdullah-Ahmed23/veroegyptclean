@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import i18n from './i18n';
 
 // Types
 export interface ProductVariant {
@@ -8,18 +9,27 @@ export interface ProductVariant {
   color: string;
   colorHex: string;
   price: number;
+  costPrice?: number;
   compareAtPrice?: number;
   available: boolean;
+  stock: number;
   sku: string;
+  image_url?: string;
 }
 
 export interface Product {
   id: string;
   handle: string;
   title: string;
+  title_en: string;
+  title_ar: string;
   description: string;
+  description_en: string;
+  description_ar: string;
   category: string;
+  category_id?: string;
   collection: string;
+  collection_id?: string;
   images: string[];
   variants: ProductVariant[];
   tags: string[];
@@ -32,10 +42,48 @@ export interface CartItem {
   variantId: string;
   title: string;
   image: string;
+  backImage?: string;
   size: string;
   color: string;
+  colorHex?: string;
   price: number;
   quantity: number;
+  stock?: number;
+  customDesigns?: any[];
+}
+
+export interface Order {
+  id: string;
+  createdAt: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  shippingAddress: string;
+  totalAmount: number;
+  paymentMethod: 'cod' | 'wallet' | 'instapay';
+  paymentProofUrl?: string;
+  status: 'pending' | 'confirmed' | 'shipped' | 'cancelled' | 'delivered' | 'returned';
+  items?: OrderItem[];
+  customDesign?: CustomDesign;
+}
+
+export interface OrderItem {
+  id: string;
+  productId: string;
+  variantId: string;
+  quantity: number;
+  priceAtPurchase: number;
+}
+
+export interface CustomDesign {
+  id: string;
+  orderId?: string;
+  frontImageUrl?: string;
+  backImageUrl?: string;
+  baseColor: string;
+  size: string;
+  notes?: string;
+  createdAt: string;
 }
 
 interface CartState {
@@ -122,6 +170,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: 'vero-cart',
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );
@@ -137,7 +186,12 @@ export const useUIStore = create<UIState>()(
 
       toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
 
-      setLanguage: (lang) => set({ language: lang }),
+      setLanguage: (lang) => {
+        i18n.changeLanguage(lang);
+        // Force LTR globally to prevent layout bugs in complex components
+        document.documentElement.dir = 'ltr';
+        set({ language: lang });
+      },
 
       setIsSearchOpen: (isOpen) => set({ isSearchOpen: isOpen }),
 
