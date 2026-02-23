@@ -132,9 +132,18 @@ export function QuickShopModal({ product, isOpen, onClose }: QuickShopModalProps
                                         <div className="space-y-1">
                                             <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">{t('common.quickAdd')}</h3>
                                             <h2 className="text-xl sm:text-2xl font-black uppercase italic text-white leading-tight">{language === 'ar' ? (product.title_ar || product.title_en) : (product.title_en || product.title_ar)}</h2>
-                                            <p className="text-lg font-black text-[#49d77e] mt-1">
-                                                {formatPrice(selectedVariant?.price || product.variants[0].price, language)}
-                                            </p>
+                                            <div className="flex items-baseline gap-2 mt-1">
+                                                <p className="text-lg font-black text-[#49d77e]">
+                                                    {formatPrice(selectedVariant?.price || product.variants[0].price, language)}
+                                                </p>
+                                                {(selectedVariant?.compareAtPrice || (!selectedVariant && product.variants[0].compareAtPrice)) && (
+                                                    <p className="text-sm font-bold text-zinc-500 line-through">
+                                                        {selectedVariant
+                                                            ? formatPrice(selectedVariant.compareAtPrice, language)
+                                                            : formatPrice(product.variants[0].compareAtPrice, language)}
+                                                    </p>
+                                                )}
+                                            </div>
                                         </div>
 
                                         <button

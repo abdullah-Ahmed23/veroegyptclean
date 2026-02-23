@@ -185,11 +185,20 @@ const Product = () => {
             <h1 className="heading-2 mb-4">{language === 'ar' ? (product.title_ar || product.title_en) : (product.title_en || product.title_ar)}</h1>
 
             {/* Price */}
-            <p className="price-display text-xl mb-6">
-              {selectedVariant
-                ? formatPrice(selectedVariant.price, language)
-                : formatPrice(product.variants[0].price, language)}
-            </p>
+            <div className="flex items-baseline gap-3 mb-6">
+              <p className="price-display text-2xl font-bold text-vero-gold">
+                {selectedVariant
+                  ? formatPrice(selectedVariant.price, language)
+                  : formatPrice(product.variants[0].price, language)}
+              </p>
+              {(selectedVariant?.compareAtPrice || (!selectedVariant && product.variants[0].compareAtPrice)) && (
+                <p className="text-lg text-muted-foreground/60 line-through">
+                  {selectedVariant
+                    ? formatPrice(selectedVariant.compareAtPrice!, language)
+                    : formatPrice(product.variants[0].compareAtPrice!, language)}
+                </p>
+              )}
+            </div>
 
             {/* Color Selection */}
             <div className="mb-6">

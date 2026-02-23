@@ -26,6 +26,7 @@ interface Variant {
     color_ar: string;
     color_hex: string;
     price: number;
+    compare_at_price?: number;
     cost_price: number;
     stock_quantity: number;
     image_url?: string;
@@ -241,6 +242,7 @@ export default function AdminProducts() {
                         color_ar: v.color_ar,
                         color_hex: v.color_hex,
                         price: Math.round(Number(v.price) * 100),
+                        compare_at_price: v.compare_at_price ? Math.round(Number(v.compare_at_price) * 100) : null,
                         cost_price: Math.round(Number(v.cost_price || 0) * 100),
                         stock_quantity: Number(v.stock_quantity),
                         image_url: v.image_url
@@ -295,6 +297,7 @@ export default function AdminProducts() {
             color_ar: 'أسود',
             color_hex: '#000000',
             price: 0,
+            compare_at_price: 0,
             cost_price: 0,
             stock_quantity: 0,
             image_url: ''
@@ -434,6 +437,7 @@ export default function AdminProducts() {
                                                     product_variants: product.product_variants.map(v => ({
                                                         ...v,
                                                         price: v.price / 100,
+                                                        compare_at_price: v.compare_at_price ? v.compare_at_price / 100 : 0,
                                                         cost_price: (v.cost_price || 0) / 100
                                                     }))
                                                 });
@@ -699,6 +703,15 @@ export default function AdminProducts() {
                                                             value={variant.price}
                                                             onChange={e => updateVariant(index, 'price', parseFloat(e.target.value))}
                                                             className="w-full bg-transparent border-b border-white/10 py-1 text-xs text-vero-gold font-bold focus:outline-none"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-bold text-zinc-600 uppercase">Compare At (EGP)</label>
+                                                        <input
+                                                            type="number"
+                                                            value={variant.compare_at_price}
+                                                            onChange={e => updateVariant(index, 'compare_at_price', parseFloat(e.target.value))}
+                                                            className="w-full bg-transparent border-b border-white/10 py-1 text-xs text-zinc-400 focus:outline-none"
                                                         />
                                                     </div>
                                                     <div className="space-y-2">

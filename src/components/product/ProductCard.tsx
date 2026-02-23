@@ -102,9 +102,16 @@ export function ProductCard({ product, index }: ProductCardProps) {
             <ProductTitle text={language === 'ar' ? (product.title_ar || product.title_en) : (product.title_en || product.title_ar)} />
           </h3>
 
-          <p className="text-sm font-medium text-muted-foreground/80 font-mono">
-            {formatPrice(product.variants[0]?.price || 0, language)}
-          </p>
+          <div className="flex items-center justify-center gap-2">
+            <p className="text-sm font-bold text-vero-gold font-mono">
+              {formatPrice(product.variants[0]?.price || 0, language)}
+            </p>
+            {product.variants[0]?.compareAtPrice && (
+              <p className="text-xs font-medium text-muted-foreground/60 line-through font-mono">
+                {formatPrice(product.variants[0].compareAtPrice, language)}
+              </p>
+            )}
+          </div>
 
           {/* Size Selection Preview */}
           {uniqueSizes.length > 0 && (
