@@ -82,7 +82,6 @@ const lookbookImages = [
   { src: heroImage, titleKey: 'oversizedSilhouettes', subtitleKey: 'log01' },
   { src: lookbook1, titleKey: 'neutralTones', subtitleKey: 'log02' },
   { src: productHoodie1, titleKey: 'premiumTextures', subtitleKey: 'log03' },
-  { src: productSweatpants1, titleKey: 'relaxedFits', subtitleKey: 'log04' },
 ];
 
 const Lookbook = () => {
